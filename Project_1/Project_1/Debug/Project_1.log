@@ -1,6 +1,4 @@
 ﻿  main.cpp
 C:\NYU\Spring 2025\Game Programming\CS3113\Project_1\Project_1\main.cpp(31,28): warning C4244: 'initializing': conversion from 'double' to 'const int', possible loss of data
 C:\NYU\Spring 2025\Game Programming\CS3113\Project_1\Project_1\main.cpp(32,29): warning C4244: 'initializing': conversion from 'double' to 'const int', possible loss of data
-  ShaderProgram.cpp
-  Generating Code...
   Project_1.vcxproj -> C:\NYU\Spring 2025\Game Programming\CS3113\Project_1\Debug\Project_1.exe
