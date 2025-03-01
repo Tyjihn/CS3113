@@ -1,0 +1,8 @@
+﻿  main.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\format(42): warning STL4038: The contents of <format> are available only with C++20 or later.
+C:\NYU\Spring 2025\Game Programming\Visual Studio\Project_2\Project_2\main.cpp(33,28): warning C4244: 'initializing': conversion from 'float' to 'const int', possible loss of data
+C:\NYU\Spring 2025\Game Programming\Visual Studio\Project_2\Project_2\main.cpp(34,29): warning C4244: 'initializing': conversion from 'float' to 'const int', possible loss of data
+C:\NYU\Spring 2025\Game Programming\Visual Studio\Project_2\Project_2\main.cpp(82,31): warning C4305: 'initializing': truncation from 'double' to 'const float'
+C:\NYU\Spring 2025\Game Programming\Visual Studio\Project_2\Project_2\main.cpp(83,32): warning C4305: 'initializing': truncation from 'double' to 'const float'
+C:\NYU\Spring 2025\Game Programming\Visual Studio\Project_2\Project_2\main.cpp(149,23): warning C4018: '<': signed/unsigned mismatch
+  Project_2.vcxproj -> C:\NYU\Spring 2025\Game Programming\Visual Studio\Project_2\Debug\Project_2.exe
