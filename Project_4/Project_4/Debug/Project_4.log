@@ -1,0 +1,6 @@
+﻿  main.cpp
+C:\NYU\Spring 2025\Game Programming\Visual Studio\Project_4\Project_4\main.cpp(50,31): warning C4244: 'initializing': conversion from 'const float' to 'const int', possible loss of data
+C:\NYU\Spring 2025\Game Programming\Visual Studio\Project_4\Project_4\main.cpp(51,31): warning C4244: 'initializing': conversion from 'const float' to 'const int', possible loss of data
+C:\NYU\Spring 2025\Game Programming\Visual Studio\Project_4\Project_4\main.cpp(96,53): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\NYU\Spring 2025\Game Programming\Visual Studio\Project_4\Project_4\main.cpp(96,39): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+  Project_4.vcxproj -> C:\NYU\Spring 2025\Game Programming\Visual Studio\Project_4\Debug\Project_4.exe
