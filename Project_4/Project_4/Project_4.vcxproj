@@ -154,12 +154,17 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\background.png" />
+    <Image Include="assets\fall.png" />
     <Image Include="assets\font1.png" />
     <Image Include="assets\font2.png" />
     <Image Include="assets\george_0.png" />
+    <Image Include="assets\rest.png" />
+    <Image Include="assets\jump.png" />
     <Image Include="assets\platformPack_tile027.png" />
+    <Image Include="assets\run.png" />
     <Image Include="assets\soph.png" />
     <Image Include="assets\tileset.png" />
+    <Image Include="assets\tileset00.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -22,6 +22,10 @@
 #include "ShaderProgram.h"
 #include "Entity.h"
 
+// ------------ DEBUG -----------
+#include <windows.h>
+// --------------
+
 void Entity::ai_activate(Entity *player)
 {
     switch (m_ai_type)
@@ -66,6 +70,7 @@ void Entity::ai_guard(Entity *player)
             break;
     }
 }
+
 // Default constructor
 Entity::Entity()
     : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
@@ -73,24 +78,22 @@ Entity::Entity()
     m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
     m_texture_id(0), m_velocity(0.0f), m_acceleration(0.0f), m_width(0.0f), m_height(0.0f)
 {
-    // Initialize m_walking with zeros or any default value
-    for (int i = 0; i < SECONDS_PER_FRAME; ++i)
-        for (int j = 0; j < SECONDS_PER_FRAME; ++j) m_walking[i][j] = 0;
+    //face_right();
 }
 
-// Parameterized constructor
-Entity::Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int walking[4][4], float animation_time,
-    int animation_frames, int animation_index, int animation_cols,
-    int animation_rows, float width, float height, EntityType EntityType)
+// Parameterized constructor (Player)
+Entity::Entity(std::vector<GLuint> texture_ids, float speed, glm::vec3 acceleration, float jump_power, std::vector<std::vector<int>> animations,
+    float animation_time, int animation_frames, int animation_index, int animation_cols,
+    int animation_rows, float width, float height, EntityType EntityType, PlayerState player_state)
     : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
     m_speed(speed),m_acceleration(acceleration), m_jumping_power(jump_power), m_animation_cols(animation_cols),
     m_animation_frames(animation_frames), m_animation_index(animation_index),
     m_animation_rows(animation_rows), m_animation_indices(nullptr),
-    m_animation_time(animation_time), m_texture_id(texture_id), m_velocity(0.0f),
-    m_width(width), m_height(height), m_entity_type(EntityType)
+    m_animation_time(animation_time), m_texture_ids(texture_ids), m_velocity(0.0f),
+    m_width(width), m_height(height), m_entity_type(EntityType), m_player_state(player_state)
 {
-    face_right();
-    set_walking(walking);
+    //face_right();
+    set_player_state(player_state);
 }
 
 // Simpler constructor for partial initialization
@@ -98,39 +101,33 @@ Entity::Entity(GLuint texture_id, float speed,  float width, float height, Entit
     : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
     m_speed(speed), m_animation_cols(0), m_animation_frames(0), m_animation_index(0),
     m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
-    m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), m_width(width), m_height(height),m_entity_type(EntityType)
+    m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), m_width(width), m_height(height), m_entity_type(EntityType)
 {
-    // Initialize m_walking with zeros or any default value
-    for (int i = 0; i < SECONDS_PER_FRAME; ++i)
-        for (int j = 0; j < SECONDS_PER_FRAME; ++j) m_walking[i][j] = 0;
+    //face_right();
 }
+
 Entity::Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState): m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
 m_speed(speed), m_animation_cols(0), m_animation_frames(0), m_animation_index(0),
 m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
 m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), m_width(width), m_height(height),m_entity_type(EntityType), m_ai_type(AIType), m_ai_state(AIState)
 {
-// Initialize m_walking with zeros or any default value
-for (int i = 0; i < SECONDS_PER_FRAME; ++i)
-    for (int j = 0; j < SECONDS_PER_FRAME; ++j) m_walking[i][j] = 0;
+    //face_right();
 }
 
 Entity::~Entity() { }
 
 void Entity::draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint texture_id, int index)
 {
-    // Step 1: Calculate the UV location of the indexed frame
-    float u_coord = (float)(index % m_animation_cols) / (float)m_animation_cols;
-    float v_coord = (float)(index / m_animation_cols) / (float)m_animation_rows;
+    float u_coord = (float)(m_animation_index % m_animation_cols) / (float)m_animation_cols;
+    float v_coord = (float)(m_animation_index / m_animation_cols) / (float)m_animation_rows;
 
-    // Step 2: Calculate its UV size
     float width = 1.0f / (float)m_animation_cols;
     float height = 1.0f / (float)m_animation_rows;
 
-    // Step 3: Just as we have done before, match the texture coordinates to the vertices
     float tex_coords[] =
     {
-        u_coord, v_coord + height, u_coord + width, v_coord + height, u_coord + width, v_coord,
-        u_coord, v_coord + height, u_coord + width, v_coord, u_coord, v_coord
+        u_coord, v_coord + height, u_coord + width, v_coord + height, u_coord + width,
+        v_coord, u_coord, v_coord + height, u_coord + width, v_coord, u_coord, v_coord
     };
 
     float vertices[] =
@@ -139,7 +136,6 @@ void Entity::draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint textu
         -0.5, -0.5, 0.5,  0.5, -0.5, 0.5
     };
 
-    // Step 4: And render
     glBindTexture(GL_TEXTURE_2D, texture_id);
 
     glVertexAttribPointer(program->get_position_attribute(), 2, GL_FLOAT, false, 0, vertices);
@@ -177,14 +173,12 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 m_position.y   -= y_overlap;
                 m_velocity.y    = 0;
 
-                // Collision!
                 m_collided_top  = true;
             } else if (m_velocity.y < 0)
             {
                 m_position.y      += y_overlap;
                 m_velocity.y       = 0;
 
-                // Collision!
                 m_collided_bottom  = true;
             }
         }
@@ -206,7 +200,6 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                 m_position.x     -= x_overlap;
                 m_velocity.x      = 0;
 
-                // Collision!
                 m_collided_right  = true;
                 
             } else if (m_velocity.x < 0)
@@ -214,7 +207,6 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                 m_position.x    += x_overlap;
                 m_velocity.x     = 0;
  
-                // Collision!
                 m_collided_left  = true;
             }
         }
@@ -311,7 +303,7 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     
     if (m_entity_type == ENEMY) ai_activate(player);
     
-    if (m_animation_indices != NULL)
+    if (m_animation_indices != nullptr)
     {
         if (glm::length(m_movement) != 0)
         {
@@ -358,9 +350,9 @@ void Entity::render(ShaderProgram* program)
 {
     program->set_model_matrix(m_model_matrix);
 
-    if (m_animation_indices != NULL)
+    if (m_animation_indices != nullptr)
     {
-        draw_sprite_from_texture_atlas(program, m_texture_id, m_animation_indices[m_animation_index]);
+        draw_sprite_from_texture_atlas(program, m_texture_ids[m_player_state], m_animation_indices[m_animation_index]);
         return;
     }
 

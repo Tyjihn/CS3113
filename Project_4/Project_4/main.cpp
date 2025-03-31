@@ -40,10 +40,10 @@ constexpr float WINDOW_MULT = 1.5f;
 constexpr float WINDOW_WIDTH  = 640 * WINDOW_MULT,
                 WINDOW_HEIGHT = 480 * WINDOW_MULT;
 
-constexpr float BG_RED = 0.1922f,
-                BG_BLUE    = 0.549f,
-                BG_GREEN   = 0.9059f,
-                BG_OPACITY = 1.0f;
+constexpr float BG_RED = 0.255f,
+                BG_BLUE    = 0.294f,
+                BG_GREEN   = 0.435f,
+                BG_OPACITY = 0.345f;
 
 constexpr int VIEWPORT_X = 0,
               VIEWPORT_Y = 0,
@@ -91,7 +91,7 @@ void initialise()
 {
     // ————— VIDEO ————— //
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    g_display_window = SDL_CreateWindow("Hello, Scenes!",
+    g_display_window = SDL_CreateWindow("Platformer",
                                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                       WINDOW_WIDTH, WINDOW_HEIGHT,
                                       SDL_WINDOW_OPENGL);
@@ -143,130 +143,6 @@ void initialise()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
-
-//void process_input()
-//{
-//    SDL_Event event;
-//    while (SDL_PollEvent(&event))
-//    {
-//        // ————— KEYSTROKES ————— //
-//        switch (event.type) {
-//            // ————— END GAME ————— //
-//            case SDL_QUIT:
-//            case SDL_WINDOWEVENT_CLOSE:
-//                g_app_status = TERMINATED;
-//                break;
-//
-//            case SDL_KEYDOWN:
-//                switch (event.key.keysym.sym) {
-//                case SDLK_q:
-//                    g_app_status = TERMINATED;
-//                    break;
-//                }
-//
-//            if (g_current_scene->get_scene_type() == START)
-//            {
-//                case SDLK_RETURN:
-//                    //switch_to_scene(g_level_a);
-//                    //g_current_scene->get_state().next_scene_id;
-//                    break;
-//            }
-//            else if (g_current_scene->get_scene_type() == LEVEL)
-//            {
-//                g_current_scene->get_state().player->set_movement(glm::vec3(0.0f));
-//                
-//                switch (event.type) {
-//                case SDLK_SPACE:
-//                    // ————— JUMPING ————— //
-//                    if (g_current_scene->get_state().player->get_collided_bottom())
-//                    {
-//                        g_current_scene->get_state().player->jump();
-//                        //Mix_PlayChannel(-1,  g_current_scene->get_state().jump_sfx, 0);
-//                    }
-//                    break;
-//
-//                default:
-//                    break;
-//                }
-//                // ————— KEY HOLD ————— //
-//                const Uint8* key_state = SDL_GetKeyboardState(NULL);
-//
-//                if (key_state[SDL_SCANCODE_LEFT])        g_current_scene->get_state().player->move_left();
-//                else if (key_state[SDL_SCANCODE_RIGHT])  g_current_scene->get_state().player->move_right();
-//
-//                if (glm::length(g_current_scene->get_state().player->get_movement()) > 1.0f)
-//                    g_current_scene->get_state().player->normalise_movement();
-//            }
-//        }
-//    }
-//
-//    //// ----- START SCREEN ----- //
-//    //if (g_current_scene->get_scene_type() == START)
-//    //{
-//    //    while (SDL_PollEvent(&event))
-//    //    {
-//    //        switch (event.type) {
-//    //        case SDLK_RETURN:
-//    //            // ————— JUMPING ————— //
-//    //            switch_to_scene(g_level_a);
-//    //            g_current_scene->get_state().next_scene_id;
-//    //            break;
-//    //
-//    //        default:
-//    //            break;
-//    //        }
-//    //    }
-//    //}
-//    //
-//    //// ----- PLAYER MOVEMENT FOR LEVEL SCENES----- //
-//    //else if (g_current_scene->get_scene_type() == LEVEL)
-//    //{
-//    //    g_current_scene->get_state().player->set_movement(glm::vec3(0.0f));
-//    //
-//    //    //SDL_Event event;
-//    //    //while (SDL_PollEvent(&event))
-//    //    //{
-//    //    //    // ————— KEYSTROKES ————— //
-//    //    //    switch (event.type) {
-//    //    //        // ————— END GAME ————— //
-//    //    //    case SDL_QUIT:
-//    //    //    case SDL_WINDOWEVENT_CLOSE:
-//    //    //        g_app_status = TERMINATED;
-//    //    //        break;
-//    //
-//    //    //    case SDL_KEYDOWN:
-//    //    //        switch (event.key.keysym.sym) {
-//    //    //        case SDLK_q:
-//    //    //            // Quit the game with a keystroke
-//    //    //            g_app_status = TERMINATED;
-//    //    //            break;
-//    //    while (SDL_PollEvent(&event))
-//    //    {
-//    //        switch (event.type) {
-//    //            case SDLK_SPACE:
-//    //                // ————— JUMPING ————— //
-//    //                if (g_current_scene->get_state().player->get_collided_bottom())
-//    //                {
-//    //                    g_current_scene->get_state().player->jump();
-//    //                    //Mix_PlayChannel(-1,  g_current_scene->get_state().jump_sfx, 0);
-//    //                }
-//    //                break;
-//    //
-//    //            default:
-//    //                break;
-//    //        }
-//    //    }
-//    //
-//    //    // ————— KEY HOLD ————— //
-//    //    const Uint8* key_state = SDL_GetKeyboardState(NULL);
-//    //
-//    //    if (key_state[SDL_SCANCODE_LEFT])        g_current_scene->get_state().player->move_left();
-//    //    else if (key_state[SDL_SCANCODE_RIGHT])  g_current_scene->get_state().player->move_right();
-//    //
-//    //    if (glm::length(g_current_scene->get_state().player->get_movement()) > 1.0f)
-//    //        g_current_scene->get_state().player->normalise_movement();
-//    //}
-//}
 
 void process_input()
 {
@@ -358,6 +234,9 @@ void process_input()
     if (g_current_scene->get_scene_type() == LEVEL) {
         if (key_state[SDL_SCANCODE_LEFT])        g_current_scene->get_state().player->move_left();
         else if (key_state[SDL_SCANCODE_RIGHT])  g_current_scene->get_state().player->move_right();
+
+        // Idle
+        g_current_scene->get_state().player->set_player_state(REST);
 
         if (glm::length(g_current_scene->get_state().player->get_movement()) > 1.0f)
             g_current_scene->get_state().player->normalise_movement();

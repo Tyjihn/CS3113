@@ -93,5 +93,20 @@
     <Image Include="assets\font2.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\fall.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\rest.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\jump.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\run.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\tileset00.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

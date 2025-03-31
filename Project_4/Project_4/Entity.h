@@ -9,22 +9,24 @@ enum AIType     { WALKER, GUARD            };
 enum AIState    { WALKING, IDLE, ATTACKING };
 
 enum AnimationDirection { LEFT, RIGHT, UP, DOWN };
+
 // Animation Set
-enum Animation { IDLE, RUN, JUMP, FALL };
+enum PlayerState { REST, RUN, JUMP, FALL };
 
 class Entity
 {
 private:
     bool m_is_active = true;
     
-    int m_walking[4][4]; // 4x4 array for walking animations
+    //int m_walking[4][4]; // 4x4 array for walking animations
 
     // NEW ANIMATION
-
+    std::vector<std::vector<int>> m_animations;
     
     EntityType m_entity_type;
     AIType     m_ai_type;
     AIState    m_ai_state;
+    PlayerState m_player_state;
     // ————— TRANSFORMATIONS ————— //
     glm::vec3 m_movement;
     glm::vec3 m_position;
@@ -41,6 +43,7 @@ private:
 
     // ————— TEXTURES ————— //
     GLuint    m_texture_id;
+    std::vector<GLuint> m_texture_ids;
 
     // ————— ANIMATION ————— //
     int m_animation_cols;
@@ -65,9 +68,9 @@ public:
 
     // ————— METHODS ————— //
     Entity();
-    Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int walking[4][4], float animation_time,
-        int animation_frames, int animation_index, int animation_cols,
-           int animation_rows, float width, float height, EntityType EntityType);
+    Entity(std::vector<GLuint> texture_ids, float speed, glm::vec3 acceleration, float jump_power, std::vector<std::vector<int>> animations,
+            float animation_time, int animation_frames, int animation_index, int animation_cols,
+            int animation_rows, float width, float height, EntityType EntityType, PlayerState PlayerState); // Player constructor
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType); // Simpler constructor
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState); // AI constructor
     ~Entity();
@@ -96,27 +99,37 @@ public:
     void face_left() { if (m_scale.x > 0.0f) m_scale.x *= -1.0f;  }  // ADD IDLE ANIMATION
     void face_right() { if (m_scale.x < 0.0f) m_scale.x *= -1.0f; }
 
-    void move_left() { m_movement.x = -1.0f; face_left(); } // ADD RUNNING ANIMATION???
-    void move_right() { m_movement.x = 1.0f;  face_right(); }
+    void move_left() { 
+        m_movement.x = -1.0f; face_left();   
+        //m_player_state = RUN; 
+    }
+
+    void move_right() {
+        m_movement.x = 1.0f; face_right();  
+        //m_player_state = RUN; 
+    }
     
-    void const jump() { m_is_jumping = true; } // ADD JUMPING ANIMATION???
+    void const jump() { 
+        m_is_jumping = true;
+    //m_player_state = JUMP;
+    }
 
     // ————— GETTERS ————— //
-    EntityType const get_entity_type()    const { return m_entity_type;   };
-    AIType     const get_ai_type()        const { return m_ai_type;       };
-    AIState    const get_ai_state()       const { return m_ai_state;      };
-    float const get_jumping_power() const { return m_jumping_power; }
-    glm::vec3 const get_position()     const { return m_position; }
-    glm::vec3 const get_velocity()     const { return m_velocity; }
-    glm::vec3 const get_acceleration() const { return m_acceleration; }
-    glm::vec3 const get_movement()     const { return m_movement; }
-    glm::vec3 const get_scale()        const { return m_scale; }
-    GLuint    const get_texture_id()   const { return m_texture_id; }
-    float     const get_speed()        const { return m_speed; }
-    bool      const get_collided_top() const { return m_collided_top; }
-    bool      const get_collided_bottom() const { return m_collided_bottom; }
-    bool      const get_collided_right() const { return m_collided_right; }
-    bool      const get_collided_left() const { return m_collided_left; }
+    EntityType const get_entity_type()      const { return m_entity_type;    };
+    AIType     const get_ai_type()          const { return m_ai_type;        };
+    AIState    const get_ai_state()         const { return m_ai_state;       };
+    float      const get_jumping_power()    const { return m_jumping_power;  };
+    glm::vec3  const get_position()         const { return m_position;       }
+    glm::vec3  const get_velocity()         const { return m_velocity;       }
+    glm::vec3  const get_acceleration()     const { return m_acceleration;   }
+    glm::vec3  const get_movement()         const { return m_movement;       }
+    glm::vec3  const get_scale()            const { return m_scale;          }
+    GLuint     const get_texture_id()       const { return m_texture_id;     }
+    float      const get_speed()            const { return m_speed;          }
+    bool       const get_collided_top()     const { return m_collided_top;   }
+    bool       const get_collided_bottom()  const { return m_collided_bottom;}
+    bool       const get_collided_right()   const { return m_collided_right; }
+    bool       const get_collided_left()    const { return m_collided_left;  }
     
     void activate()   { m_is_active = true;  };
     void deactivate() { m_is_active = false; };
@@ -139,17 +152,22 @@ public:
     void const set_jumping_power(float new_jumping_power) { m_jumping_power = new_jumping_power;}
     void const set_width(float new_width) {m_width = new_width; }
     void const set_height(float new_height) {m_height = new_height; }
-
-    // Setter for m_walking
-    void set_walking(int walking[4][4])
+    void const set_animations(std::vector<std::vector<int>> new_animations) { m_animations = new_animations; }
+    void const set_player_state(PlayerState new_player_state)
     {
-        for (int i = 0; i < 4; ++i)
+        m_player_state = new_player_state;
+
+        if (!m_animations.empty() && m_animations.size() > m_player_state)
         {
-            for (int j = 0; j < 4; ++j)
-            {
-                m_walking[i][j] = walking[i][j];
-            }
+            m_animation_indices = m_animations[m_player_state].data();
         }
+        else
+        {
+            m_animation_indices = nullptr;
+            return;
+        }
+
+        m_animation_cols = (int)m_animations[m_player_state].size();
     }
 };
 
