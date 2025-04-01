@@ -10,25 +10,21 @@
 #include "LevelA.h"
 #include "Utility.h"
 
-#define LEVEL_WIDTH 14
-#define LEVEL_HEIGHT 8
+#define LEVEL_WIDTH 20
+#define LEVEL_HEIGHT 10
 
-
-constexpr char PLATFORM_FILEPATH[]    = "assets/platformPack_tile027.png",
-               ENEMY_FILEPATH[]       = "assets/soph.png";
-
-//SPRITESHEET_FILEPATH[] = "assets/george_0.png",
-
-unsigned int LEVEL_DATA[] =
+static unsigned int LEVEL_DATA[] =
 {
-    3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
-    3, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2,
-    3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+    2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    2, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    2, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
 };
 
 LevelA::~LevelA()
@@ -47,14 +43,6 @@ void LevelA::initialise()
 
     GLuint map_texture_id = Utility::load_texture("assets/tileset00.png");
     m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, LEVEL_DATA, map_texture_id, 1.0f, 5, 1);
-    
-    std::vector<GLuint> player_texture_ids =
-    {
-        Utility::load_texture("assets/rest.png"),
-        Utility::load_texture("assets/run.png"),
-        Utility::load_texture("assets/jump.png"),
-        Utility::load_texture("assets/fall.png")
-    };
 
     std::vector<std::vector<int>> player_animations =
     {
@@ -64,7 +52,15 @@ void LevelA::initialise()
         { 0, 1, 2, 3 }                      // Fall
     };
 
-    glm::vec3 acceleration = glm::vec3(0.0f, -4.81f, 0.0f);
+    std::vector<GLuint> player_texture_ids =
+    {
+        Utility::load_texture("assets/player/rest.png"),
+        Utility::load_texture("assets/player/run.png"),
+        Utility::load_texture("assets/player/jump.png"),
+        Utility::load_texture("assets/player/fall.png")
+    };
+
+    glm::vec3 acceleration = glm::vec3(0.0f, -12.0f, 0.0f);
 
     m_game_state.player = new Entity(
         player_texture_ids,        // texture id
@@ -73,33 +69,53 @@ void LevelA::initialise()
         5.0f,                      // jumping power
         player_animations,         // animation index sets
         0.0f,                      // animation time
-        4,                         // animation frame amount
+        8,                         // animation frame amount
         0,                         // current animation index
         8,                         // animation column amount
         1,                         // animation row amount
-        1.0f,                      // width
-        1.0f,                      // height
+        0.8f,                      // width
+        0.8f,                      // height
         PLAYER,                    // entity type
         REST                       // entity state
     );
 
-    m_game_state.player->set_position(glm::vec3(5.0f, 0.0f, 0.0f));
-
-    // Jumping
-    m_game_state.player->set_jumping_power(3.0f);
+    m_game_state.player->set_position(glm::vec3(2.0f, 0.0f, 0.0f));
     
-    /**
-     Enemies' stuff */
-    GLuint enemy_texture_id = Utility::load_texture(ENEMY_FILEPATH);
+    // ------ Initialize Enemies ------ //
+    std::vector<std::vector<int>> enemy_animations =
+    {
+        { 0, 1, 2, 3, 4, 5 },                           // Idle
+        { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },   // Moving
+    };
+
+    std::vector<GLuint> enemy_texture_ids =
+    {
+        Utility::load_texture("assets/slime/idle.png"),
+        Utility::load_texture("assets/slime/hop.png")
+    };
 
     m_game_state.enemies = new Entity[ENEMY_COUNT];
 
     for (int i = 0; i < ENEMY_COUNT; i++)
     {
-        m_game_state.enemies[i] =  Entity(enemy_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
+        m_game_state.enemies[i] = Entity(
+            enemy_texture_ids,      // texture ids
+            1.0f,                   // speed
+            enemy_animations,       // animation index sets
+            0.0f,                   // animation time
+            6,                      // animation frame amount
+            0,                      // current animation index
+            6,                      // animation column amount
+            1,                      // animation row amount
+            0.8f,                   // width
+            0.8f,                   // height
+            ENEMY,                  // entity type
+            WALKER,                 // AI type
+            IDLE                    // AI state
+        );
     }
 
-    m_game_state.enemies[0].set_position(glm::vec3(8.0f, 0.0f, 0.0f));
+    m_game_state.enemies[0].set_position(glm::vec3(3.0f, 0.0f, 0.0f));
     m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
     m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
 
@@ -126,7 +142,6 @@ void LevelA::update(float delta_time)
 
     if (m_game_state.player->get_position().y < -10.0f) m_game_state.next_scene_id = 2;
 }
-
 
 void LevelA::render(ShaderProgram *g_shader_program)
 {

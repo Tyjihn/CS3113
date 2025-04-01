@@ -34,6 +34,8 @@
 
 #include "StartScene.h"
 #include "LevelA.h"
+#include "LevelB.h"
+#include "LevelC.h"
 
 // ————— CONSTANTS ————— //
 constexpr float WINDOW_MULT = 1.5f;
@@ -60,8 +62,10 @@ enum AppStatus { RUNNING, TERMINATED };
 // ————— GLOBAL VARIABLES ————— //
 Scene *g_current_scene;
 StartScene *g_start_scene;
-LevelA *g_level_a;
-Scene  *g_scenes[2];
+LevelA* g_level_a;
+LevelB* g_level_b;
+LevelC* g_level_c;
+Scene  *g_scenes[4];
 
 SDL_Window* g_display_window;
 
@@ -125,19 +129,15 @@ void initialise()
     // ----- SCENES SETUP ----- //
     g_start_scene = new StartScene();
     g_level_a = new LevelA();
+    g_level_b = new LevelB();
+    g_level_c = new LevelC();
 
     g_scenes[0] = g_start_scene;
     g_scenes[1] = g_level_a;
+    g_scenes[2] = g_level_b;
+    g_scenes[3] = g_level_c;
 
     switch_to_scene(g_scenes[0]);
-
-    //// ----- START SCREEN SETUP ----- //
-    //g_start_scene = new StartScene();
-    //switch_to_scene(g_start_scene);
-
-    //// ————— LEVEL A SETUP ————— //
-    //g_level_a = new LevelA();
-    //switch_to_scene(g_level_a);
     
     // ————— BLENDING ————— //
     glEnable(GL_BLEND);
@@ -169,25 +169,9 @@ void process_input()
                 g_app_status = TERMINATED;
                 break;
 
+            // Restart Scene
             case SDLK_r:
-                g_view_matrix = glm::mat4(1.0f);
-                g_projection_matrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
-
-                g_shader_program.set_projection_matrix(g_projection_matrix);
-                g_shader_program.set_view_matrix(g_view_matrix);
-
-                glUseProgram(g_shader_program.get_program_id());
-
-                glClearColor(BG_RED, BG_BLUE, BG_GREEN, BG_OPACITY);
-
-                // ----- SCENES SETUP ----- //
-                g_start_scene = new StartScene();
-                g_level_a = new LevelA();
-
-                g_scenes[0] = g_start_scene;
-                g_scenes[1] = g_level_a;
-
-                switch_to_scene(g_scenes[0]);
+                switch_to_scene(g_current_scene);
                 break;
             
             // Press Enter at Start Screen
@@ -212,6 +196,7 @@ void process_input()
                 if (g_current_scene->get_scene_type() == LEVEL) {
                     if (g_current_scene->get_state().player->get_collided_bottom()) {
                         g_current_scene->get_state().player->jump();
+
                         //Mix_PlayChannel(-1, g_current_scene->get_state().jump_sfx, 0);
                     }
                 }
@@ -232,11 +217,40 @@ void process_input()
 
     // Player movement
     if (g_current_scene->get_scene_type() == LEVEL) {
-        if (key_state[SDL_SCANCODE_LEFT])        g_current_scene->get_state().player->move_left();
-        else if (key_state[SDL_SCANCODE_RIGHT])  g_current_scene->get_state().player->move_right();
+        bool is_moving = key_state[SDL_SCANCODE_LEFT] || key_state[SDL_SCANCODE_RIGHT];
+        bool is_airborne = !g_current_scene->get_state().player->get_collided_bottom();
 
-        // Idle
-        g_current_scene->get_state().player->set_player_state(REST);
+        if (key_state[SDL_SCANCODE_LEFT]) {
+            g_current_scene->get_state().player->move_left();
+        }
+        else if (key_state[SDL_SCANCODE_RIGHT]) {
+            g_current_scene->get_state().player->move_right();
+        }
+        if (is_moving) {
+            if (key_state[SDL_SCANCODE_LEFT])       g_current_scene->get_state().player->move_left();
+            else if (key_state[SDL_SCANCODE_RIGHT]) g_current_scene->get_state().player->move_right();
+        }
+        else if (is_airborne) {
+            g_current_scene->get_state().player->set_player_state(
+                (g_current_scene->get_state().player->get_velocity().y > 0.0f) ? JUMP : FALL
+            );
+        }
+        else {
+            g_current_scene->get_state().player->set_player_state(REST);
+        }
+        
+        //if (key_state[SDL_SCANCODE_LEFT] || key_state[SDL_SCANCODE_RIGHT]) {
+        //    if (key_state[SDL_SCANCODE_LEFT])       g_current_scene->get_state().player->move_left();
+        //    else if (key_state[SDL_SCANCODE_RIGHT]) g_current_scene->get_state().player->move_right();
+        //}
+        //else if (!g_current_scene->get_state().player->get_collided_bottom()) {
+        //    g_current_scene->get_state().player->set_player_state(
+        //        (g_current_scene->get_state().player->get_velocity().y > 0.0f) ? JUMP : FALL
+        //    );
+        //}
+        //else {
+        //    g_current_scene->get_state().player->set_player_state(REST);
+        //}
 
         if (glm::length(g_current_scene->get_state().player->get_movement()) > 1.0f)
             g_current_scene->get_state().player->normalise_movement();
@@ -280,6 +294,12 @@ void update()
         else {
             g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-5, 3.75, 0));
         }
+
+        if (g_current_scene == g_level_a && g_current_scene->get_state().player->get_position().y < -10.0f) switch_to_scene(g_level_b);
+        else if (g_current_scene == g_level_b && g_current_scene->get_state().player->get_position().y < -10.0f) switch_to_scene(g_level_c);
+
+        //g_view_matrix = glm::translate(g_view_matrix, g_effects->get_view_offset());
+        //g_shader_program.set_light_position_matrix(g_current_scene->get_state().player->get_position());
     }
 }
 
@@ -303,17 +323,13 @@ void shutdown()
     
     delete g_start_scene;
     delete g_level_a;
-    //// ————— DELETING LEVEL A DATA (i.e. map, character, enemies...) ————— //
-    //delete g_level_a;
+    delete g_level_b;
+    delete g_level_c;
 }
 
 // ————— GAME LOOP ————— //
 int main(int argc, char* argv[])
 {
-    SDL_version compiled;
-    SDL_VERSION(&compiled);
-    printf("Compiled SDL version: %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch);
-
     initialise();
     
     while (g_app_status == RUNNING)

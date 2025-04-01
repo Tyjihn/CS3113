@@ -39,6 +39,12 @@
     <ClCompile Include="StartScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LevelB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h">
@@ -62,6 +68,12 @@
     <ClInclude Include="StartScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LevelB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Media Include="assets\bounce.wav">
@@ -72,12 +84,6 @@
     </Media>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="assets\george_0.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\platformPack_tile027.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="assets\tileset.png">
       <Filter>Resource Files</Filter>
     </Image>
@@ -93,19 +99,25 @@
     <Image Include="assets\font2.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\fall.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\rest.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\jump.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\run.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="assets\tileset00.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player\fall.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player\jump.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player\rest.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player\run.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\slime\hop.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\slime\idle.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

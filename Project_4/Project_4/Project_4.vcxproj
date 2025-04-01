@@ -132,6 +132,8 @@
   <ItemGroup>
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="LevelA.cpp" />
+    <ClCompile Include="LevelB.cpp" />
+    <ClCompile Include="LevelC.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -141,6 +143,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="LevelB.h" />
+    <ClInclude Include="LevelC.h" />
     <ClInclude Include="StartScene.h" />
     <ClInclude Include="LevelA.h" />
     <ClInclude Include="Map.h" />
@@ -154,14 +158,14 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\background.png" />
-    <Image Include="assets\fall.png" />
     <Image Include="assets\font1.png" />
     <Image Include="assets\font2.png" />
-    <Image Include="assets\george_0.png" />
-    <Image Include="assets\rest.png" />
-    <Image Include="assets\jump.png" />
-    <Image Include="assets\platformPack_tile027.png" />
-    <Image Include="assets\run.png" />
+    <Image Include="assets\player\fall.png" />
+    <Image Include="assets\player\jump.png" />
+    <Image Include="assets\player\rest.png" />
+    <Image Include="assets\player\run.png" />
+    <Image Include="assets\slime\hop.png" />
+    <Image Include="assets\slime\idle.png" />
     <Image Include="assets\soph.png" />
     <Image Include="assets\tileset.png" />
     <Image Include="assets\tileset00.png" />
