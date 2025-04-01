@@ -1,8 +1,62 @@
-﻿  LevelB.cpp
-D:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(156,58): warning C4018: '>': signed/unsigned mismatch
-D:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(176,58): warning C4018: '>': signed/unsigned mismatch
+﻿  EndScene.cpp
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(163,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'EndScene.cpp')
+  
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(183,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'EndScene.cpp')
+  
+  Entity.cpp
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(163,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'Entity.cpp')
+  
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(183,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'Entity.cpp')
+  
+  LevelA.cpp
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(163,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'LevelA.cpp')
+  
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(183,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'LevelA.cpp')
+  
+  LevelB.cpp
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(163,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'LevelB.cpp')
+  
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(183,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'LevelB.cpp')
+  
   LevelC.cpp
-D:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(156,58): warning C4018: '>': signed/unsigned mismatch
-D:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(176,58): warning C4018: '>': signed/unsigned mismatch
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(163,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'LevelC.cpp')
+  
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(183,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'LevelC.cpp')
+  
+  main.cpp
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(163,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'main.cpp')
+  
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(183,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'main.cpp')
+  
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\main.cpp(53,31): warning C4244: 'initializing': conversion from 'const float' to 'const int', possible loss of data
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\main.cpp(54,31): warning C4244: 'initializing': conversion from 'const float' to 'const int', possible loss of data
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\main.cpp(107,53): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\main.cpp(107,39): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+  Scene.cpp
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(163,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'Scene.cpp')
+  
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(183,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'Scene.cpp')
+  
+  StartScene.cpp
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(163,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'StartScene.cpp')
+  
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(183,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'StartScene.cpp')
+  
   Generating Code...
-  Project_4.vcxproj -> D:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Debug\Project_4.exe
+  Project_4.vcxproj -> C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Debug\Project_4.exe

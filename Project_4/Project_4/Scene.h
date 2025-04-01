@@ -17,7 +17,7 @@
 #include "Map.h"
 
 
-enum SceneType { START, LEVEL, GAME_OVER };
+enum SceneType { START, LEVEL, END };
 
 struct GameState
 {
@@ -40,10 +40,13 @@ class Scene {
 protected:
     GameState m_game_state;
     SceneType m_scene_type;
+
+    // ----- PLAYER LIVES ----- //
+    int m_player_lives;
     
 public:
     // ————— ATTRIBUTES ————— //
-    int m_number_of_enemies = 1;
+    int m_number_of_enemies = 0;
     
     // ————— METHODS ————— //
     virtual void initialise() = 0;
@@ -54,4 +57,8 @@ public:
     SceneType const get_scene_type() const { return m_scene_type;         }
     GameState const get_state() const { return m_game_state;              }
     int const get_number_of_enemies() const { return m_number_of_enemies; }
+    int const get_player_lives() const { return m_player_lives; }
+
+    // ----- SETTER ----- //
+    void const set_player_lives(int new_player_lives) { m_player_lives = new_player_lives; }
 };

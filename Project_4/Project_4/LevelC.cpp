@@ -23,12 +23,12 @@ static unsigned int LEVEL_DATA[] =
     2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    2, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1,
-    2, 1, 1, 1, 0, 0, 2, 2, 1, 1, 1, 1, 1, 1, 2, 3, 2, 3, 2, 2,
-    2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 2, 4, 2, 2,
-    2, 2, 2, 2, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 2, 4, 2, 2,
-    2, 2, 2, 2, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 2, 4, 2, 2
+    2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+    2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 2, 2, 2,
+    2, 1, 1, 1, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 3, 3, 2, 2, 2, 2,
+    2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 2, 2, 2, 2,
+    2, 2, 2, 2, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 2, 2, 2, 2,
+    2, 2, 2, 2, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 2, 2, 2, 2
 };
 
 LevelC::~LevelC()
@@ -64,21 +64,21 @@ void LevelC::initialise()
         Utility::load_texture("assets/player/fall.png")
     };
 
-    glm::vec3 acceleration = glm::vec3(0.0f, -9.8f, 0.0f);
+    glm::vec3 acceleration = glm::vec3(0.0f, -22.0f, 0.0f);
 
     m_game_state.player = new Entity(
         player_texture_ids,        // texture id
         5.0f,                      // speed
         acceleration,              // acceleration
-        5.0f,                      // jumping power
+        7.0f,                      // jumping power
         player_animations,         // animation index sets
         0.0f,                      // animation time
         8,                         // animation frame amount
         0,                         // current animation index
         8,                         // animation column amount
         1,                         // animation row amount
-        0.7f,                      // width
-        0.7f,                      // height
+        0.8f,                      // width
+        0.8f,                      // height
         PLAYER,                    // entity type
         REST                       // entity state
     );
@@ -89,9 +89,9 @@ void LevelC::initialise()
      Enemies' stuff */
     //GLuint enemy_texture_id = Utility::load_texture(ENEMY_FILEPATH);
 
-    //m_game_state.enemies = new Entity[ENEMY_COUNT];
+    //m_game_state.enemies = new Entity[m_number_of_enemies];
 
-    //for (int i = 0; i < ENEMY_COUNT; i++)
+    //for (int i = 0; i < m_number_of_enemies; i++)
     //{
     //    m_game_state.enemies[i] = Entity(enemy_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
     //}
@@ -114,9 +114,9 @@ void LevelC::initialise()
 
 void LevelC::update(float delta_time)
 {
-    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map);
+    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, m_number_of_enemies, m_game_state.map);
 
-    //for (int i = 0; i < ENEMY_COUNT; i++)
+    //for (int i = 0; i < m_number_of_enemies; i++)
     //{
     //    m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, NULL, m_game_state.map);
     //}
@@ -130,4 +130,15 @@ void LevelC::render(ShaderProgram* g_shader_program)
     m_game_state.player->render(g_shader_program);
     //for (int i = 0; i < m_number_of_enemies; i++)
     //    m_game_state.enemies[i].render(g_shader_program);
+}
+
+void LevelC::player_death() {
+    set_player_lives(get_player_lives() - 1);  // Lose 1 life
+
+    if (get_player_lives() <= 0) {
+        m_game_state.next_scene_id = 4;  // Game Over Scene
+    }
+    else {
+        initialise(); // Reset Level
+    }
 }

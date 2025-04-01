@@ -41,6 +41,7 @@ void LevelA::initialise()
     m_scene_type = LEVEL;
     m_game_state.next_scene_id = -1;
 
+    m_font_texture_id = Utility::load_texture("assets/font2.png");
     GLuint map_texture_id = Utility::load_texture("assets/tileset00.png");
     m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, LEVEL_DATA, map_texture_id, 1.0f, 5, 1);
 
@@ -60,13 +61,13 @@ void LevelA::initialise()
         Utility::load_texture("assets/player/fall.png")
     };
 
-    glm::vec3 acceleration = glm::vec3(0.0f, -12.0f, 0.0f);
+    glm::vec3 acceleration = glm::vec3(0.0f, -22.0f, 0.0f);
 
     m_game_state.player = new Entity(
         player_texture_ids,        // texture id
         5.0f,                      // speed
         acceleration,              // acceleration
-        5.0f,                      // jumping power
+        7.0f,                      // jumping power
         player_animations,         // animation index sets
         0.0f,                      // animation time
         8,                         // animation frame amount
@@ -94,28 +95,45 @@ void LevelA::initialise()
         Utility::load_texture("assets/slime/hop.png")
     };
 
-    m_game_state.enemies = new Entity[ENEMY_COUNT];
+    //m_game_state.enemies = new Entity[m_number_of_enemies];
 
-    for (int i = 0; i < ENEMY_COUNT; i++)
-    {
-        m_game_state.enemies[i] = Entity(
-            enemy_texture_ids,      // texture ids
-            1.0f,                   // speed
-            enemy_animations,       // animation index sets
-            0.0f,                   // animation time
-            6,                      // animation frame amount
-            0,                      // current animation index
-            6,                      // animation column amount
-            1,                      // animation row amount
-            0.8f,                   // width
-            0.8f,                   // height
-            ENEMY,                  // entity type
-            WALKER,                 // AI type
-            IDLE                    // AI state
-        );
-    }
+    //for (int i = 0; i < m_number_of_enemies; i++)
+    //{
+    //    m_game_state.enemies[i] = Entity(
+    //        enemy_texture_ids,      // texture ids
+    //        1.0f,                   // speed
+    //        enemy_animations,       // animation index sets
+    //        0.0f,                   // animation time
+    //        6,                      // animation frame amount
+    //        0,                      // current animation index
+    //        6,                      // animation column amount
+    //        1,                      // animation row amount
+    //        0.8f,                   // width
+    //        0.8f,                   // height
+    //        ENEMY,                  // entity type
+    //        WALKER,                 // AI type
+    //        IDLE                    // AI state
+    //    );
 
-    m_game_state.enemies[0].set_position(glm::vec3(3.0f, 0.0f, 0.0f));
+    m_game_state.enemies = new Entity[1];
+
+    m_game_state.enemies[0] = Entity(
+        enemy_texture_ids,      // texture ids
+        1.0f,                   // speed
+        enemy_animations,       // animation index sets
+        0.0f,                   // animation time
+        6,                      // animation frame amount
+        0,                      // current animation index
+        6,                      // animation column amount
+        1,                      // animation row amount
+        0.8f,                   // width
+        0.8f,                   // height
+        ENEMY,                  // entity type
+        WALKER,                 // AI type
+        IDLE                    // AI state
+    );
+
+    m_game_state.enemies[0].set_position(glm::vec3(14.0f, -1.0f, 0.0f));
     m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
     m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
 
@@ -133,20 +151,50 @@ void LevelA::initialise()
 
 void LevelA::update(float delta_time)
 {
-    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map);
+    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, m_number_of_enemies, m_game_state.map);
     
-    for (int i = 0; i < ENEMY_COUNT; i++)
-    {
-        m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, NULL, m_game_state.map);
-    }
+    //for (int i = 0; i < m_number_of_enemies; i++)
+    //{
+    //    m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, NULL, m_game_state.map);
+    //}
 
+    m_game_state.enemies[0].update(delta_time, m_game_state.player, NULL, NULL, m_game_state.map);
+
+    // ----- Switch Scene ----- //
     if (m_game_state.player->get_position().y < -10.0f) m_game_state.next_scene_id = 2;
+
+    // ----- Player Lives ----- //
+    for (int i = 0; i < m_number_of_enemies; i++) {
+        // Collide with enemy
+        if (m_game_state.player->check_collision(&m_game_state.enemies[i])) {
+            player_death();
+            break;
+        }
+    }
 }
 
 void LevelA::render(ShaderProgram *g_shader_program)
 {
     m_game_state.map->render(g_shader_program);
     m_game_state.player->render(g_shader_program);
-    for (int i = 0; i < m_number_of_enemies; i++)
-            m_game_state.enemies[i].render(g_shader_program);
+    //for (int i = 0; i < m_number_of_enemies; i++)
+    //        m_game_state.enemies[i].render(g_shader_program);
+    m_game_state.enemies[0].render(g_shader_program);
+
+    // ----- Render Player Lives ----- //
+    std::string lives_text = "Lives: " + std::to_string(get_player_lives());
+
+    Utility::draw_text(g_shader_program, m_font_texture_id, lives_text, 0.2f, 0.0f,
+        glm::vec3(m_game_state.player->get_position().x + 3.0f, -0.4f, 0.0f));
+}
+
+void LevelA::player_death() {
+    set_player_lives(get_player_lives() - 1);  // Lose 1 life
+
+    if (get_player_lives() <= 0) {
+        m_game_state.next_scene_id = 4;  // Game Over Scene
+    }
+    else {
+        initialise(); // Reset Level
+    }
 }

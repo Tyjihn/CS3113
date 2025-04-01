@@ -5,7 +5,7 @@
 #include "glm/glm.hpp"
 #include "ShaderProgram.h"
 enum EntityType { PLAYER, ENEMY            };
-enum AIType     { WALKER, GUARD            };
+enum AIType     { WALKER, GUARD, FLYER     };
 enum AIState    { IDLE, WALKING, ATTACKING };
 enum PlayerState { REST, RUN, JUMP, FALL   };
 
@@ -49,6 +49,7 @@ private:
 
     float m_width = 1.0f,
           m_height = 1.0f;
+
     // ————— COLLISIONS ————— //
     bool m_collided_top    = false;
     bool m_collided_bottom = false;
@@ -62,8 +63,8 @@ public:
     // ————— METHODS ————— //
     Entity();
     Entity(std::vector<GLuint> texture_ids, float speed, glm::vec3 acceleration, float jump_power, std::vector<std::vector<int>> animations,
-            float animation_time, int animation_frames, int animation_index, int animation_cols,
-            int animation_rows, float width, float height, EntityType EntityType, PlayerState PlayerState); // Player constructor
+            float animation_time, int animation_frames, int animation_index, int animation_cols, int animation_rows, 
+            float width, float height, EntityType EntityType, PlayerState PlayerState); // Player constructor
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType); // Simpler constructor
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState); // AI constructor
     Entity(std::vector<GLuint> texture_ids, float speed, std::vector<std::vector<int>> animations, float animation_time, 
@@ -104,6 +105,10 @@ public:
         face_right();
         set_player_state(RUN);
     }
+
+    void jumping() { set_player_state(JUMP); }
+    void falling() { set_player_state(FALL); }
+    void resting() { set_player_state(REST); }
     
     void const jump() { m_is_jumping = true; }
 
@@ -125,6 +130,8 @@ public:
     bool                const get_collided_bottom()  const { return m_collided_bottom;}
     bool                const get_collided_right()   const { return m_collided_right; }
     bool                const get_collided_left()    const { return m_collided_left;  }
+    float               const get_width()            const { return m_width;          }
+    float               const get_height()           const { return m_height;         }
     
     void activate()   { m_is_active = true;  };
     void deactivate() { m_is_active = false; };

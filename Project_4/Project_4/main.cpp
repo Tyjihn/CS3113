@@ -36,6 +36,7 @@
 #include "LevelA.h"
 #include "LevelB.h"
 #include "LevelC.h"
+#include "EndScene.h"
 
 // ————— CONSTANTS ————— //
 constexpr float WINDOW_MULT = 1.5f;
@@ -60,12 +61,15 @@ constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 enum AppStatus { RUNNING, TERMINATED };
 
 // ————— GLOBAL VARIABLES ————— //
-Scene *g_current_scene;
-StartScene *g_start_scene;
+Scene* g_current_scene;
+StartScene* g_start_scene;
 LevelA* g_level_a;
 LevelB* g_level_b;
 LevelC* g_level_c;
-Scene  *g_scenes[4];
+EndScene* g_end_scene;
+Scene* g_scenes[5];
+
+int g_player_lives;
 
 SDL_Window* g_display_window;
 
@@ -80,8 +84,11 @@ float g_pause_ticks = 0.0f;
 
 void switch_to_scene(Scene *scene)
 {
+    if (g_current_scene != nullptr && g_current_scene->get_scene_type() != START)
+        g_player_lives = g_current_scene->get_player_lives();
     g_current_scene = scene;
     g_current_scene->initialise();
+    g_current_scene->set_player_lives(g_player_lives);
 }
 
 void initialise();
@@ -131,14 +138,18 @@ void initialise()
     g_level_a = new LevelA();
     g_level_b = new LevelB();
     g_level_c = new LevelC();
+    g_end_scene = new EndScene();
 
     g_scenes[0] = g_start_scene;
     g_scenes[1] = g_level_a;
     g_scenes[2] = g_level_b;
     g_scenes[3] = g_level_c;
+    g_scenes[4] = g_end_scene;
 
     switch_to_scene(g_scenes[0]);
-    
+
+    g_player_lives = 3;
+
     // ————— BLENDING ————— //
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -217,40 +228,20 @@ void process_input()
 
     // Player movement
     if (g_current_scene->get_scene_type() == LEVEL) {
-        bool is_moving = key_state[SDL_SCANCODE_LEFT] || key_state[SDL_SCANCODE_RIGHT];
-        bool is_airborne = !g_current_scene->get_state().player->get_collided_bottom();
-
-        if (key_state[SDL_SCANCODE_LEFT]) {
-            g_current_scene->get_state().player->move_left();
-        }
-        else if (key_state[SDL_SCANCODE_RIGHT]) {
-            g_current_scene->get_state().player->move_right();
-        }
-        if (is_moving) {
+        
+        if (key_state[SDL_SCANCODE_LEFT] || key_state[SDL_SCANCODE_RIGHT]) {
             if (key_state[SDL_SCANCODE_LEFT])       g_current_scene->get_state().player->move_left();
             else if (key_state[SDL_SCANCODE_RIGHT]) g_current_scene->get_state().player->move_right();
         }
-        else if (is_airborne) {
-            g_current_scene->get_state().player->set_player_state(
-                (g_current_scene->get_state().player->get_velocity().y > 0.0f) ? JUMP : FALL
-            );
+        else if (g_current_scene->get_state().player->get_collided_bottom() == false) {
+            if (g_current_scene->get_state().player->get_velocity().y > 0.0f) 
+                g_current_scene->get_state().player->jumping();
+            else
+                g_current_scene->get_state().player->falling();
         }
         else {
-            g_current_scene->get_state().player->set_player_state(REST);
+            g_current_scene->get_state().player->resting();
         }
-        
-        //if (key_state[SDL_SCANCODE_LEFT] || key_state[SDL_SCANCODE_RIGHT]) {
-        //    if (key_state[SDL_SCANCODE_LEFT])       g_current_scene->get_state().player->move_left();
-        //    else if (key_state[SDL_SCANCODE_RIGHT]) g_current_scene->get_state().player->move_right();
-        //}
-        //else if (!g_current_scene->get_state().player->get_collided_bottom()) {
-        //    g_current_scene->get_state().player->set_player_state(
-        //        (g_current_scene->get_state().player->get_velocity().y > 0.0f) ? JUMP : FALL
-        //    );
-        //}
-        //else {
-        //    g_current_scene->get_state().player->set_player_state(REST);
-        //}
 
         if (glm::length(g_current_scene->get_state().player->get_movement()) > 1.0f)
             g_current_scene->get_state().player->normalise_movement();
@@ -295,11 +286,19 @@ void update()
             g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-5, 3.75, 0));
         }
 
-        if (g_current_scene == g_level_a && g_current_scene->get_state().player->get_position().y < -10.0f) switch_to_scene(g_level_b);
-        else if (g_current_scene == g_level_b && g_current_scene->get_state().player->get_position().y < -10.0f) switch_to_scene(g_level_c);
+        //if (g_player_lives <= 0) switch_to_scene(g_end_scene);
+        //else if (g_current_scene == g_level_a && g_current_scene->get_state().player->get_position().y < -10.0f && 
+        //    g_current_scene->get_state().player->get_position().x > 20.0f) switch_to_scene(g_level_b);
+        //else if (g_current_scene == g_level_b && g_current_scene->get_state().player->get_position().y < -10.0f &&
+        //    g_current_scene->get_state().player->get_position().x > 20.0f) switch_to_scene(g_level_c);
+
+        if (g_current_scene->get_state().next_scene_id > 0)
+            switch_to_scene(g_scenes[g_current_scene->get_state().next_scene_id]);
+        if (g_current_scene == g_end_scene) g_view_matrix = glm::mat4(1.0f);
 
         //g_view_matrix = glm::translate(g_view_matrix, g_effects->get_view_offset());
         //g_shader_program.set_light_position_matrix(g_current_scene->get_state().player->get_position());
+
     }
 }
 
