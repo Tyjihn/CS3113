@@ -18,7 +18,7 @@
 #include <GL/glew.h>
 #endif
 
-//#include <SDL_mixer.h>
+#include <SDL_mixer.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include "glm/mat4x4.hpp"
@@ -74,6 +74,7 @@ int g_player_lives;
 SDL_Window* g_display_window;
 
 bool is_paused = false;
+bool is_game_over = false;
 AppStatus g_app_status = RUNNING;
 ShaderProgram g_shader_program;
 glm::mat4 g_view_matrix, g_projection_matrix;
@@ -81,6 +82,16 @@ glm::mat4 g_view_matrix, g_projection_matrix;
 float g_previous_ticks = 0.0f;
 float g_accumulator = 0.0f;
 float g_pause_ticks = 0.0f;
+
+// ----- MUSIC ----- //
+constexpr int CD_QUAL_FREQ = 44100,
+              AUDIO_CHAN_AMT = 2,
+              AUDIO_BUFF_SIZE = 4096;
+
+constexpr char BGM_FILEPATH[] = "assets/Music/bgm.mp3";
+constexpr int LOOP_FOREVER = -1;
+Mix_Music* g_music;
+
 
 void switch_to_scene(Scene *scene)
 {
@@ -102,6 +113,21 @@ void initialise()
 {
     // ————— VIDEO ————— //
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+
+    // Start Audio
+    Mix_OpenAudio(
+        CD_QUAL_FREQ,       // the frequency to playback audio at (in Hz)
+        MIX_DEFAULT_FORMAT, // audio format
+        AUDIO_CHAN_AMT,     // number of channels (1 is mono, 2 is stereo, etc).
+        AUDIO_BUFF_SIZE     // audio buffer size in sample FRAMES (total samples divided by channel count)
+    );
+
+    // ----- MUSIC INITIALIZATION ----- //
+    g_music = Mix_LoadMUS(BGM_FILEPATH);
+    Mix_PlayMusic(g_music, LOOP_FOREVER);
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
+
+    // ----- WINDOW ----- //
     g_display_window = SDL_CreateWindow("Platformer",
                                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                       WINDOW_WIDTH, WINDOW_HEIGHT,
@@ -180,19 +206,19 @@ void process_input()
                 g_app_status = TERMINATED;
                 break;
 
-            // Restart Scene
+                // Restart Scene
             case SDLK_r:
                 switch_to_scene(g_current_scene);
                 break;
-            
-            // Press Enter at Start Screen
+
+                // Press Enter at Start Screen
             case SDLK_RETURN:
                 if (g_current_scene->get_scene_type() == START) {
-                     switch_to_scene(g_level_a);
+                    switch_to_scene(g_level_a);
                 }
                 break;
 
-            // Pause Screen
+                // Pause Screen
             case SDLK_p:
                 if (g_current_scene->get_scene_type() == LEVEL)
                 {
@@ -202,13 +228,12 @@ void process_input()
                 }
                 break;
 
-            // Player jumping
+                // Player jumping
             case SDLK_SPACE:
                 if (g_current_scene->get_scene_type() == LEVEL) {
                     if (g_current_scene->get_state().player->get_collided_bottom()) {
                         g_current_scene->get_state().player->jump();
-
-                        //Mix_PlayChannel(-1, g_current_scene->get_state().jump_sfx, 0);
+                        Mix_PlayChannel(-1, g_current_scene->get_state().jump_sfx, 0);
                     }
                 }
                 break;
@@ -228,19 +253,22 @@ void process_input()
 
     // Player movement
     if (g_current_scene->get_scene_type() == LEVEL) {
-        
-        if (key_state[SDL_SCANCODE_LEFT] || key_state[SDL_SCANCODE_RIGHT]) {
-            if (key_state[SDL_SCANCODE_LEFT])       g_current_scene->get_state().player->move_left();
-            else if (key_state[SDL_SCANCODE_RIGHT]) g_current_scene->get_state().player->move_right();
-        }
-        else if (g_current_scene->get_state().player->get_collided_bottom() == false) {
-            if (g_current_scene->get_state().player->get_velocity().y > 0.0f) 
-                g_current_scene->get_state().player->jumping();
+
+        if (key_state[SDL_SCANCODE_LEFT])
+            g_current_scene->get_state().player->move_left();
+        else if (key_state[SDL_SCANCODE_RIGHT])
+            g_current_scene->get_state().player->move_right();
+        else
+        {
+            if (!g_current_scene->get_state().player->get_collided_bottom())
+            {
+                if (g_current_scene->get_state().player->get_velocity().y > 0.0f)
+                    g_current_scene->get_state().player->set_player_state(JUMP);
+                else
+                    g_current_scene->get_state().player->set_player_state(FALL);
+            }
             else
-                g_current_scene->get_state().player->falling();
-        }
-        else {
-            g_current_scene->get_state().player->resting();
+                g_current_scene->get_state().player->set_player_state(REST);
         }
 
         if (glm::length(g_current_scene->get_state().player->get_movement()) > 1.0f)
@@ -286,12 +314,7 @@ void update()
             g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-5, 3.75, 0));
         }
 
-        //if (g_player_lives <= 0) switch_to_scene(g_end_scene);
-        //else if (g_current_scene == g_level_a && g_current_scene->get_state().player->get_position().y < -10.0f && 
-        //    g_current_scene->get_state().player->get_position().x > 20.0f) switch_to_scene(g_level_b);
-        //else if (g_current_scene == g_level_b && g_current_scene->get_state().player->get_position().y < -10.0f &&
-        //    g_current_scene->get_state().player->get_position().x > 20.0f) switch_to_scene(g_level_c);
-
+        // ----- SCENE SWITCH ----- //
         if (g_current_scene->get_state().next_scene_id > 0)
             switch_to_scene(g_scenes[g_current_scene->get_state().next_scene_id]);
         if (g_current_scene == g_end_scene) g_view_matrix = glm::mat4(1.0f);
@@ -299,6 +322,14 @@ void update()
         //g_view_matrix = glm::translate(g_view_matrix, g_effects->get_view_offset());
         //g_shader_program.set_light_position_matrix(g_current_scene->get_state().player->get_position());
 
+    }
+    else if (g_current_scene->get_scene_type() == END)
+    {
+        if (!is_game_over)
+        {
+            Mix_PlayChannel(-1, g_current_scene->get_state().jump_sfx, 0);
+            is_game_over = true;
+        }
     }
 }
 
@@ -317,7 +348,8 @@ void render()
 }
 
 void shutdown()
-{    
+{
+    Mix_FreeMusic(g_music);
     SDL_Quit();
     
     delete g_start_scene;

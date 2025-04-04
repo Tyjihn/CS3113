@@ -14,9 +14,6 @@
 #define LEVEL_HEIGHT 10
 
 
-//constexpr char PLATFORM_FILEPATH[] = "assets/platformPack_tile027.png",
-//ENEMY_FILEPATH[] = "assets/soph.png";
-
 static unsigned int LEVEL_DATA[] =
 {
     2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -25,8 +22,8 @@ static unsigned int LEVEL_DATA[] =
     2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
     2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 2, 2, 2,
-    2, 1, 1, 1, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 3, 3, 2, 2, 2, 2,
-    2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 2, 2, 2, 2,
+    2, 1, 1, 1, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 0, 0, 2, 2, 2, 2,
+    2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 2, 2, 2, 2,
     2, 2, 2, 2, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 2, 2, 2, 2,
     2, 2, 2, 2, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 2, 2, 2, 2
 };
@@ -36,7 +33,7 @@ LevelC::~LevelC()
     //delete[] m_game_state.enemies;
     delete    m_game_state.player;
     delete    m_game_state.map;
-    //Mix_FreeChunk(m_game_state.jump_sfx);
+    Mix_FreeChunk(m_game_state.jump_sfx);
     //Mix_FreeMusic(m_game_state.bgm);
 }
 
@@ -45,6 +42,7 @@ void LevelC::initialise()
     m_scene_type = LEVEL;
     m_game_state.next_scene_id = -1;
 
+    m_font_texture_id = Utility::load_texture("assets/font2.png");
     GLuint map_texture_id = Utility::load_texture("assets/tileset00.png");
     m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, LEVEL_DATA, map_texture_id, 1.0f, 5, 1);
 
@@ -100,16 +98,9 @@ void LevelC::initialise()
     //m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
     //m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
 
-    ///**
-    // BGM and SFX
-    // */
-    //Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
-    //
-    //m_game_state.bgm = Mix_LoadMUS("assets/dooblydoo.mp3");
-    //Mix_PlayMusic(m_game_state.bgm, -1);
-    //Mix_VolumeMusic(0.0f);
-    //
-    //m_game_state.jump_sfx = Mix_LoadWAV("assets/bounce.wav");
+    // ----- BGM and SFX ----- //
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+    m_game_state.jump_sfx = Mix_LoadWAV("assets/music/jump.wav");
 }
 
 void LevelC::update(float delta_time)
@@ -121,7 +112,18 @@ void LevelC::update(float delta_time)
     //    m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, NULL, m_game_state.map);
     //}
 
-    if (m_game_state.player->get_position().y < -10.0f) m_game_state.next_scene_id = 3;
+    float player_bottom = m_game_state.player->get_position().y - (m_game_state.player->get_height() / 2.0f);
+
+    if (player_bottom >= -9.0f && player_bottom < -7.5f) {
+        float player_left = m_game_state.player->get_position().x - (m_game_state.player->get_width() / 2.0f);
+        float player_right = m_game_state.player->get_position().x + (m_game_state.player->get_width() / 2.0f);
+
+        if ((player_right > 4.0f && player_left < 6.0f) || (player_right > 14.0f && player_left < 16.0f)) {
+            player_death();
+        }
+    }
+
+    if (m_game_state.player->get_position().y < -10.0f) m_game_state.next_scene_id = 4;
 }
 
 void LevelC::render(ShaderProgram* g_shader_program)
@@ -130,6 +132,12 @@ void LevelC::render(ShaderProgram* g_shader_program)
     m_game_state.player->render(g_shader_program);
     //for (int i = 0; i < m_number_of_enemies; i++)
     //    m_game_state.enemies[i].render(g_shader_program);
+
+    // ----- Render Player Lives ----- //
+    std::string lives_text = "Lives: " + std::to_string(get_player_lives());
+
+    Utility::draw_text(g_shader_program, m_font_texture_id, lives_text, 0.2f, 0.0f,
+        glm::vec3(m_game_state.player->get_position().x + 3.0f, -0.4f, 0.0f));
 }
 
 void LevelC::player_death() {

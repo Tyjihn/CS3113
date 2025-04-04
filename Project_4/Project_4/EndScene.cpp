@@ -12,8 +12,8 @@
 
 EndScene::~EndScene()
 {
-    //Mix_FreeChunk(m_game_state.jump_sfx);
-    //Mix_FreeMusic(m_game_state.bgm);
+    Mix_FreeChunk(m_game_state.jump_sfx);
+    Mix_FreeMusic(m_game_state.bgm);
 }
 
 void EndScene::initialise()
@@ -24,16 +24,11 @@ void EndScene::initialise()
     // ----- Text ----- //
     m_font_texture_id = Utility::load_texture("assets/font2.png");
 
-    ///**
-    // BGM and SFX
-    // */
-    //Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
-    //
-    //m_game_state.bgm = Mix_LoadMUS("assets/dooblydoo.mp3");
-    //Mix_PlayMusic(m_game_state.bgm, -1);
-    //Mix_VolumeMusic(0.0f);
-    //
-    //m_game_state.jump_sfx = Mix_LoadWAV("assets/bounce.wav");
+    // ----- BGM and SFX ----- //
+    Mix_HaltMusic(); // Stop BGM
+
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+    m_game_state.jump_sfx = Mix_LoadWAV("assets/music/game_over.wav");
 }
 
 void EndScene::update(float delta_time) {}
@@ -55,6 +50,6 @@ void EndScene::render(ShaderProgram* g_shader_program)
     else
     {
         Utility::draw_text(g_shader_program, m_font_texture_id, "YOU WIN",
-            0.35f, 0.0f, glm::vec3(-1.4f, -0.6f, 0.0f));
+            0.35f, 0.0f, glm::vec3(-1.25f, -0.6f, 0.0f));
     }
 }

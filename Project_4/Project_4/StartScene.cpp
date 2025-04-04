@@ -12,11 +12,11 @@
 
 StartScene::~StartScene()
 {
-    delete[] m_game_state.enemies;
-    delete   m_game_state.player;
-    delete   m_game_state.map;
+    //delete[] m_game_state.enemies;
+    //delete   m_game_state.player;
+    //delete   m_game_state.map;
     
-    //Mix_FreeChunk(m_game_state.jump_sfx);
+    Mix_FreeChunk(m_game_state.jump_sfx);
     //Mix_FreeMusic(m_game_state.bgm);
 }
 
@@ -34,17 +34,10 @@ void StartScene::initialise()
     // ----- Text ----- //
     m_font_texture_id = Utility::load_texture("assets/font2.png");
 
-
-    ///**
-    // BGM and SFX
-    // */
-    //Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
-    //
-    //m_game_state.bgm = Mix_LoadMUS("assets/dooblydoo.mp3");
-    //Mix_PlayMusic(m_game_state.bgm, -1);
-    //Mix_VolumeMusic(0.0f);
-    //
-    //m_game_state.jump_sfx = Mix_LoadWAV("assets/bounce.wav");
+    // ----- BGM and SFX ----- //
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+    
+    m_game_state.jump_sfx = Mix_LoadWAV("assets/music/jump.wav");
 }
 
 void StartScene::update(float delta_time) { }

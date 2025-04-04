@@ -14,9 +14,6 @@
 #define LEVEL_HEIGHT 10
 
 
-//constexpr char PLATFORM_FILEPATH[] = "assets/platformPack_tile027.png",
-//               ENEMY_FILEPATH[] = "assets/soph.png";
-
 static unsigned int LEVEL_DATA[] =
 {
     2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -36,7 +33,7 @@ LevelB::~LevelB()
     //delete[] m_game_state.enemies;
     delete    m_game_state.player;
     delete    m_game_state.map;
-    //Mix_FreeChunk(m_game_state.jump_sfx);
+    Mix_FreeChunk(m_game_state.jump_sfx);
     //Mix_FreeMusic(m_game_state.bgm);
 }
 
@@ -101,16 +98,9 @@ void LevelB::initialise()
     //m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
     //m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
 
-    ///**
-    // BGM and SFX
-    // */
-    //Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
-    //
-    //m_game_state.bgm = Mix_LoadMUS("assets/dooblydoo.mp3");
-    //Mix_PlayMusic(m_game_state.bgm, -1);
-    //Mix_VolumeMusic(0.0f);
-    //
-    //m_game_state.jump_sfx = Mix_LoadWAV("assets/bounce.wav");
+    // ----- BGM and SFX ----- //
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+    m_game_state.jump_sfx = Mix_LoadWAV("assets/music/jump.wav");
 }
 
 void LevelB::update(float delta_time)

@@ -104,16 +104,13 @@ Entity::Entity(GLuint texture_id, float speed,  float width, float height, Entit
 {
 }
 
-Entity::Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState): m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
-m_speed(speed), m_animation_cols(0), m_animation_frames(0), m_animation_index(0),
-m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
-m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), m_width(width), m_height(height),m_entity_type(EntityType), m_ai_type(AIType), m_ai_state(AIState)
+Entity::Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState)
+    : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
+    m_speed(speed), m_animation_cols(0), m_animation_frames(0), m_animation_index(0), m_animation_rows(0), 
+    m_animation_indices(nullptr), m_animation_time(0.0f), m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), 
+    m_width(width), m_height(height),m_entity_type(EntityType), m_ai_type(AIType), m_ai_state(AIState)
 {
 }
-
-//Entity(std::vector<GLuint> texture_ids, float speed, std::vector<std::vector<int>> animations, float animation_time,
-//    int animation_frames, int animation_index, int animation_cols, int animation_rows, float width, float height,
-//    EntityType EntityType, AIType AIType, AIState AIState);
 
 Entity::Entity(std::vector<GLuint> texture_ids, float speed, std::vector<std::vector<int>> animations, float animation_time,
     int animation_frames, int animation_index, int animation_cols, int animation_rows, float width, float height,
@@ -131,15 +128,12 @@ Entity::~Entity() { }
 
 void Entity::draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint texture_id, int index)
 {
-    // Step 1: Calculate the UV location of the indexed frame
     float u_coord = (float)(index % m_animation_cols) / (float)m_animation_cols;
     float v_coord = (float)(index / m_animation_cols) / (float)m_animation_rows;
 
-    // Step 2: Calculate its UV size
     float width = 1.0f / (float)m_animation_cols;
     float height = 1.0f / (float)m_animation_rows;
 
-    // Step 3: Just as we have done before, match the texture coordinates to the vertices
     float tex_coords[] =
     {
         u_coord, v_coord + height, u_coord + width, v_coord + height, u_coord + width, v_coord,
@@ -152,7 +146,6 @@ void Entity::draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint textu
         -0.5, -0.5, 0.5,  0.5, -0.5, 0.5
     };
 
-    // Step 4: And render
     glBindTexture(GL_TEXTURE_2D, texture_id);
 
     glVertexAttribPointer(program->get_position_attribute(), 2, GL_FLOAT, false, 0, vertices);
@@ -232,12 +225,10 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
 
 void const Entity::check_collision_y(Map *map)
 {
-    // Probes for tiles above
     glm::vec3 top = glm::vec3(m_position.x, m_position.y + (m_height / 2), m_position.z);
     glm::vec3 top_left = glm::vec3(m_position.x - (m_width / 2), m_position.y + (m_height / 2), m_position.z);
     glm::vec3 top_right = glm::vec3(m_position.x + (m_width / 2), m_position.y + (m_height / 2), m_position.z);
     
-    // Probes for tiles below
     glm::vec3 bottom = glm::vec3(m_position.x, m_position.y - (m_height / 2), m_position.z);
     glm::vec3 bottom_left = glm::vec3(m_position.x - (m_width / 2), m_position.y - (m_height / 2), m_position.z);
     glm::vec3 bottom_right = glm::vec3(m_position.x + (m_width / 2), m_position.y - (m_height / 2), m_position.z);
@@ -245,7 +236,6 @@ void const Entity::check_collision_y(Map *map)
     float penetration_x = 0;
     float penetration_y = 0;
     
-    // If the map is solid, check the top three points
     if (map->is_solid(top, &penetration_x, &penetration_y) && m_velocity.y > 0)
     {
         m_position.y -= penetration_y;
@@ -265,7 +255,6 @@ void const Entity::check_collision_y(Map *map)
         m_collided_top = true;
     }
     
-    // And the bottom three points
     if (map->is_solid(bottom, &penetration_x, &penetration_y) && m_velocity.y < 0)
     {
         m_position.y += penetration_y;
@@ -289,7 +278,6 @@ void const Entity::check_collision_y(Map *map)
 
 void const Entity::check_collision_x(Map *map)
 {
-    // Probes for tiles; the x-checking is much simpler
     glm::vec3 left  = glm::vec3(m_position.x - (m_width / 2), m_position.y, m_position.z);
     glm::vec3 right = glm::vec3(m_position.x + (m_width / 2), m_position.y, m_position.z);
     
@@ -322,7 +310,8 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     
     if (m_animation_indices != NULL)
     {
-        if (glm::length(m_movement) != 0)
+        //if (glm::length(m_movement) > 0)
+        if (m_animation_frames > 1)
         {
             m_animation_time += delta_time;
             float frames_per_second = (float) 1 / SECONDS_PER_FRAME;

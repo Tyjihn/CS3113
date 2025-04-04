@@ -105,7 +105,7 @@ public:
         face_right();
         set_player_state(RUN);
     }
-
+    
     void jumping() { set_player_state(JUMP); }
     void falling() { set_player_state(FALL); }
     void resting() { set_player_state(REST); }

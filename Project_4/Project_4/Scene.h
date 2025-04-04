@@ -27,9 +27,9 @@ struct GameState
     Entity *enemies = nullptr;
     Entity *background = nullptr;
     
-    //// ————— AUDIO ————— //
-    //Mix_Music *bgm;
-    //Mix_Chunk *jump_sfx;
+    // ————— AUDIO ————— //
+    Mix_Music *bgm;
+    Mix_Chunk *jump_sfx;
     
     // ————— POINTERS TO OTHER SCENES ————— //
     int next_scene_id;

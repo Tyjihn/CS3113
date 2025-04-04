@@ -155,10 +155,6 @@
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
-    <Media Include="assets\bounce.wav" />
-    <Media Include="assets\dooblydoo.mp3" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="assets\background.png" />
     <Image Include="assets\font1.png" />
     <Image Include="assets\font2.png" />
@@ -171,6 +167,11 @@
     <Image Include="assets\soph.png" />
     <Image Include="assets\tileset.png" />
     <Image Include="assets\tileset00.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="assets\Music\bgm.mp3" />
+    <Media Include="assets\Music\game_over.wav" />
+    <Media Include="assets\Music\jump.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
