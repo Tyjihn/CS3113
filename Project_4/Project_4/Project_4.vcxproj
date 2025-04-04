@@ -162,6 +162,7 @@
     <Image Include="assets\player\jump.png" />
     <Image Include="assets\player\rest.png" />
     <Image Include="assets\player\run.png" />
+    <Image Include="assets\slime\attack.png" />
     <Image Include="assets\slime\hop.png" />
     <Image Include="assets\slime\idle.png" />
     <Image Include="assets\soph.png" />

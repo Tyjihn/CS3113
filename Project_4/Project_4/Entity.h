@@ -4,9 +4,9 @@
 #include "Map.h"
 #include "glm/glm.hpp"
 #include "ShaderProgram.h"
-enum EntityType { PLAYER, ENEMY            };
-enum AIType     { WALKER, GUARD, FLYER     };
-enum AIState    { IDLE, WALKING, ATTACKING };
+enum EntityType  { PLAYER, ENEMY           };
+enum AIType      { WALKER, GUARD, FLYER    };
+enum AIState     { IDLE, MOVING, ATTACKING };
 enum PlayerState { REST, RUN, JUMP, FALL   };
 
 class Entity
@@ -58,7 +58,7 @@ private:
 
 public:
     // ————— STATIC VARIABLES ————— //
-    static constexpr int SECONDS_PER_FRAME = 12;
+    static constexpr int SECONDS_PER_FRAME = 14;
 
     // ————— METHODS ————— //
     Entity();
@@ -67,7 +67,7 @@ public:
             float width, float height, EntityType EntityType, PlayerState PlayerState); // Player constructor
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType); // Simpler constructor
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState); // AI constructor
-    Entity(std::vector<GLuint> texture_ids, float speed, std::vector<std::vector<int>> animations, float animation_time, 
+    Entity(std::vector<GLuint> texture_ids, float speed, glm::vec3 acceleration, std::vector<std::vector<int>> animations, float animation_time, 
             int animation_frames, int animation_index, int animation_cols, int animation_rows, float width, float height,
             EntityType EntityType, AIType AIType, AIState AIState); // AI constructor + animation
     ~Entity();
@@ -135,6 +135,7 @@ public:
     
     void activate()   { m_is_active = true;  };
     void deactivate() { m_is_active = false; };
+
     // ————— SETTERS ————— //
     void const set_entity_type(EntityType new_entity_type)  { m_entity_type = new_entity_type;};
     void const set_ai_type(AIType new_ai_type){ m_ai_type = new_ai_type;};

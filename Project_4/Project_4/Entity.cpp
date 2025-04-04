@@ -28,52 +28,53 @@
 
 void Entity::ai_activate(Entity *player)
 {
-    switch (m_ai_type)
-    {
-        case WALKER:
-            ai_walk();
-            break;
-            
-        case GUARD:
-            ai_guard(player);
-            break;
-            
-        default:
-            break;
-    }
+    //switch (m_ai_type)
+    //{
+    //    case WALKER:
+    //        ai_walk();
+    //        break;
+    //        
+    //    case GUARD:
+    //        ai_guard(player);
+    //        break;
+    //        
+    //    default:
+    //        break;
+    //}
 }
 
 void Entity::ai_walk()
 {
     m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
+    set_ai_state(MOVING);
 }
 
 void Entity::ai_guard(Entity *player)
 {
-    switch (m_ai_state) {
-        case IDLE:
-            if (glm::distance(m_position, player->get_position()) < 3.0f) m_ai_state = WALKING;
-            break;
-            
-        case WALKING:
-            if (m_position.x > player->get_position().x) {
-                m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
-            } else {
-                m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
-            }
-            break;
-            
-        case ATTACKING:
-            break;
-            
-        default:
-            break;
-    }
+    //switch (m_ai_state) {
+    //    case IDLE:
+    //        if (glm::distance(m_position, player->get_position()) < 3.0f) m_ai_state = MOVING;
+    //        break;
+    //        
+    //    case MOVING:
+    //        if (m_position.x > player->get_position().x) {
+    //            m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
+    //        } else {
+    //            m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
+    //        }
+    //        break;
+    //        
+    //    case ATTACKING:
+    //        break;
+        //    
+        //default:
+        //    break;
+    //}
 }
 
 //Default constructor
 Entity::Entity()
-    : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
+    : m_position(0.0f), m_movement(0.0f), m_scale(glm::vec3(1.0f, 1.0f, 0.0f)), m_model_matrix(1.0f),
     m_speed(0.0f), m_animation_cols(0), m_animation_frames(0), m_animation_index(0),
     m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
     m_texture_id(0), m_velocity(0.0f), m_acceleration(0.0f), m_width(0.0f), m_height(0.0f)
@@ -85,7 +86,7 @@ Entity::Entity(std::vector<GLuint> texture_ids, float speed, glm::vec3 accelerat
     float jump_power, std::vector<std::vector<int>> animations, float animation_time, 
     int animation_frames, int animation_index, int animation_cols, int animation_rows, 
     float width, float height, EntityType EntityType, PlayerState player_state)
-    : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
+    : m_position(0.0f), m_movement(0.0f), m_scale(glm::vec3(1.0f, 1.0f, 0.0f)), m_model_matrix(1.0f),
     m_speed(speed), m_acceleration(acceleration), m_jumping_power(jump_power),
     m_animations(animations), m_animation_cols(animation_cols), m_animation_frames(animation_frames),
     m_animation_index(animation_index), m_animation_rows(animation_rows), m_animation_indices(nullptr),
@@ -97,7 +98,7 @@ Entity::Entity(std::vector<GLuint> texture_ids, float speed, glm::vec3 accelerat
 
 // Simpler constructor for partial initialization
 Entity::Entity(GLuint texture_id, float speed,  float width, float height, EntityType EntityType)
-    : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
+    : m_position(0.0f), m_movement(0.0f), m_scale(glm::vec3(1.0f, 1.0f, 0.0f)), m_model_matrix(1.0f),
     m_speed(speed), m_animation_cols(0), m_animation_frames(0), m_animation_index(0),
     m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
     m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), m_width(width), m_height(height), m_entity_type(EntityType)
@@ -105,17 +106,17 @@ Entity::Entity(GLuint texture_id, float speed,  float width, float height, Entit
 }
 
 Entity::Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState)
-    : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
+    : m_position(0.0f), m_movement(0.0f), m_scale(glm::vec3(1.0f, 1.0f, 0.0f)), m_model_matrix(1.0f),
     m_speed(speed), m_animation_cols(0), m_animation_frames(0), m_animation_index(0), m_animation_rows(0), 
     m_animation_indices(nullptr), m_animation_time(0.0f), m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), 
     m_width(width), m_height(height),m_entity_type(EntityType), m_ai_type(AIType), m_ai_state(AIState)
 {
 }
 
-Entity::Entity(std::vector<GLuint> texture_ids, float speed, std::vector<std::vector<int>> animations, float animation_time,
-    int animation_frames, int animation_index, int animation_cols, int animation_rows, float width, float height,
-    EntityType EntityType, AIType AIType, AIState AIState)
-    : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f), m_acceleration(0.0f),
+Entity::Entity(std::vector<GLuint> texture_ids, float speed, glm::vec3 acceleration, std::vector<std::vector<int>> animations,
+    float animation_time, int animation_frames, int animation_index, int animation_cols, int animation_rows, 
+    float width, float height, EntityType EntityType, AIType AIType, AIState AIState)
+    : m_position(0.0f), m_movement(0.0f), m_scale(glm::vec3(1.0f, 1.0f, 0.0f)), m_model_matrix(1.0f), m_acceleration(acceleration),
     m_speed(speed), m_animations(animations), m_animation_cols(animation_cols), m_animation_frames(animation_frames),
     m_animation_index(animation_index), m_animation_rows(animation_rows), m_animation_indices(nullptr),
     m_animation_time(animation_time), m_texture_ids(texture_ids), m_velocity(0.0f),
@@ -363,12 +364,12 @@ void Entity::render(ShaderProgram* program)
 
     if (m_entity_type == PLAYER)
         current_texture = m_texture_ids[m_player_state];
-    else if (m_entity_type == ENEMY)
-        current_texture = m_texture_ids[m_ai_state];
+    //else if (m_entity_type == ENEMY)
+    //    current_texture = m_texture_ids[m_ai_state];
 
     if (m_animation_indices != NULL)
     {
-        draw_sprite_from_texture_atlas(program, current_texture,
+        draw_sprite_from_texture_atlas(program, current_texture, 
             m_animation_indices[m_animation_index]);
         return;
     }

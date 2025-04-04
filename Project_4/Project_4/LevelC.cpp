@@ -66,7 +66,7 @@ void LevelC::initialise()
 
     m_game_state.player = new Entity(
         player_texture_ids,        // texture id
-        5.0f,                      // speed
+        4.0f,                      // speed
         acceleration,              // acceleration
         7.0f,                      // jumping power
         player_animations,         // animation index sets

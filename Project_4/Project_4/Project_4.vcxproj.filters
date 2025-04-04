@@ -118,6 +118,9 @@
     <Image Include="assets\slime\idle.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\slime\attack.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="assets\Music\bgm.mp3">

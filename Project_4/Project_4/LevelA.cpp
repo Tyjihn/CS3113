@@ -65,7 +65,7 @@ void LevelA::initialise()
 
     m_game_state.player = new Entity(
         player_texture_ids,        // texture id
-        5.0f,                      // speed
+        4.0f,                      // speed
         acceleration,              // acceleration
         7.0f,                      // jumping power
         player_animations,         // animation index sets
@@ -87,38 +87,57 @@ void LevelA::initialise()
     {
         { 0, 1, 2, 3, 4, 5 },                           // Idle
         { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },   // Moving
+        { 0, 1, 2, 3, 4, 5, 6, 7 }                      // Attacking
     };
 
     std::vector<GLuint> enemy_texture_ids =
     {
         Utility::load_texture("assets/slime/idle.png"),
-        Utility::load_texture("assets/slime/hop.png")
+        Utility::load_texture("assets/slime/hop.png"),
+        Utility::load_texture("assets/slime/attack.png")
     };
+
+    //glm::vec3 enemy_acceleration = glm::vec3(0.0f, -9.81f, 0.0f);
 
     m_game_state.enemies = new Entity[m_number_of_enemies];
 
-    for (int i = 0; i < m_number_of_enemies; i++)
-    {
-        m_game_state.enemies[i] = Entity(
-            enemy_texture_ids,      // texture ids
-            1.0f,                   // speed
-            enemy_animations,       // animation index sets
-            0.0f,                   // animation time
-            6,                      // animation frame amount
-            0,                      // current animation index
-            6,                      // animation column amount
-            1,                      // animation row amount
-            0.8f,                   // width
-            0.8f,                   // height
-            ENEMY,                  // entity type
-            WALKER,                 // AI type
-            IDLE                    // AI state
-        );
-    }
+    //for (int i = 0; i < m_number_of_enemies; i++)
+    //{
+    //    m_game_state.enemies[i] = Entity(
+    //        enemy_texture_ids,      // texture ids
+    //        1.0f,                   // speed
+    //        enemy_acceleration,     // acceleration
+    //        enemy_animations,       // animation index sets
+    //        0.0f,                   // animation time
+    //        6,                      // animation frame amount
+    //        0,                      // current animation index
+    //        6,                      // animation column amount
+    //        1,                      // animation row amount
+    //        0.8f,                   // width
+    //        0.8f,                   // height
+    //        ENEMY,                  // entity type
+    //        WALKER,                 // AI type
+    //        IDLE                    // AI state
+    //    );
+    //}
 
-    m_game_state.enemies[0].set_position(glm::vec3(2.0f, 0.0f, 0.0f));
+    //m_game_state.enemies[0].set_position(glm::vec3(2.0f, 0.0f, 0.0f));
+    //m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
+
+    //Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState); // AI constructor
+
+    m_game_state.enemies[0] = Entity(
+        Utility::load_texture("assets/soph.png"),
+        1.0f,
+        1.0f,
+        1.0f, 
+        ENEMY,
+        WALKER,
+        IDLE
+    );
+    m_game_state.enemies[0].set_position(glm::vec3(10.0f, -5.0f, 0.0f));
     m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
-    m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
+
 
     // ----- BGM and SFX ----- //
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
@@ -129,28 +148,31 @@ void LevelA::update(float delta_time)
 {
     m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, m_number_of_enemies, m_game_state.map);
     
-    for (int i = 0; i < m_number_of_enemies; i++) {
-        m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, NULL, m_game_state.map);
-    }
+    //for (int i = 0; i < m_number_of_enemies; i++) {
+    //    m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, NULL, m_game_state.map);
+    //}
+    m_game_state.enemies[0].update(delta_time, m_game_state.player, NULL, NULL, m_game_state.map);
 
     // ----- Switch Scene ----- //
     if (m_game_state.player->get_position().y < -10.0f) m_game_state.next_scene_id = 2;
 
     // ----- Player Lives ----- //
-    for (int i = 0; i < m_number_of_enemies; i++) {
-        if (m_game_state.player->check_collision(&m_game_state.enemies[i])) {
-            player_death();
-            break;
-        }
-    }
+    //for (int i = 0; i < m_number_of_enemies; i++) {
+    //    if (m_game_state.player->check_collision(&m_game_state.enemies[i])) {
+    //        player_death();
+    //        break;
+    //    }
+    //}
 }
 
 void LevelA::render(ShaderProgram *g_shader_program)
 {
     m_game_state.map->render(g_shader_program);
     m_game_state.player->render(g_shader_program);
-    for (int i = 0; i < m_number_of_enemies; i++)
-        m_game_state.enemies[i].render(g_shader_program);
+    //for (int i = 0; i < m_number_of_enemies; i++) {
+    //    m_game_state.enemies[i].render(g_shader_program);
+    //}
+    m_game_state.enemies[0].render(g_shader_program);
 
     // ----- Render Player Lives ----- //
     std::string lives_text = "Lives: " + std::to_string(get_player_lives());
