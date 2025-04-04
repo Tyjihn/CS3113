@@ -177,8 +177,8 @@ void initialise()
     g_player_lives = 3;
 
     // ————— BLENDING ————— //
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void process_input()
@@ -187,6 +187,9 @@ void process_input()
     if (g_current_scene->get_scene_type() == LEVEL)
     {
         g_current_scene->get_state().player->set_movement(glm::vec3(0.0f));
+        for (int i = 0; i < g_current_scene->get_number_of_enemies(); ++i) {
+            g_current_scene->get_state().enemies->set_movement(glm::vec3(0.0f));
+        }
     }
 
     SDL_Event event;

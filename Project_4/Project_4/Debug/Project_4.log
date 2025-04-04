@@ -1,11 +1,8 @@
 ﻿  LevelA.cpp
-D:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(164,58): warning C4018: '>': signed/unsigned mismatch
-D:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(184,58): warning C4018: '>': signed/unsigned mismatch
-  LevelB.cpp
-D:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(164,58): warning C4018: '>': signed/unsigned mismatch
-D:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(184,58): warning C4018: '>': signed/unsigned mismatch
-  LevelC.cpp
-D:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(164,58): warning C4018: '>': signed/unsigned mismatch
-D:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(184,58): warning C4018: '>': signed/unsigned mismatch
-  Generating Code...
-  Project_4.vcxproj -> D:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Debug\Project_4.exe
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(164,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'LevelA.cpp')
+  
+C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Project_4\Entity.h(184,58): warning C4018: '>': signed/unsigned mismatch
+  (compiling source file 'LevelA.cpp')
+  
+  Project_4.vcxproj -> C:\NYU\Spring 2025\Game Programming\CS3113\Project_4\Debug\Project_4.exe
