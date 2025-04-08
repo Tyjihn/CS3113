@@ -3,10 +3,7 @@
 class StartScene : public Scene {
 public:
     // ————— STATIC ATTRIBUTES ————— //
-    GLuint m_background_texture_id;
     GLuint m_font_texture_id;
-    glm::vec3 m_background_position;
-    glm::vec3 m_background_scale;
 
     // ————— DESTRUCTOR ————— //
     ~StartScene();

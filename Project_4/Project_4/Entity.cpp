@@ -37,29 +37,48 @@ void Entity::ai_activate(Entity *player)
         case GUARD:
             ai_guard(player);
             break;
+
+        case FLYER:
+            ai_flyer();
+            break;
             
         default:
+            set_ai_state(IDLE);
             break;
     }
 }
 
 void Entity::ai_walk()
 {
-    m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
+    set_ai_state(MOVING);
+    if (m_direction == LEFT)
+    {
+        m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
+        face_left();
+    }
+    else if (m_direction == RIGHT)
+    {
+        m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
+        face_right();
+    }
 }
 
 void Entity::ai_guard(Entity *player)
 {
     switch (m_ai_state) {
         case IDLE:
-            if (glm::distance(m_position, player->get_position()) < 3.0f) m_ai_state = MOVING;
+            if (glm::distance(m_position, player->get_position()) < 3.0f) {
+                set_ai_state(MOVING);
+            }
             break;
             
         case MOVING:
             if (m_position.x > player->get_position().x) {
-                m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
+                m_movement = glm::vec3(-1.0f, 0.0f, 0.0f); 
+                face_left();
             } else {
-                m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
+                m_movement = glm::vec3(1.0f, 0.0f, 0.0f); 
+                face_right();
             }
             break;
             
@@ -71,6 +90,8 @@ void Entity::ai_guard(Entity *player)
     }
 }
 
+void Entity::ai_flyer() { }
+
 //Default constructor
 Entity::Entity()
     : m_position(0.0f), m_movement(0.0f), m_scale(glm::vec3(1.0f, 1.0f, 0.0f)), m_model_matrix(1.0f),
@@ -80,7 +101,7 @@ Entity::Entity()
 {
 }
 
-// Parameterized constructor (Player)
+// Player constructor
 Entity::Entity(std::vector<GLuint> texture_ids, float speed, glm::vec3 acceleration,
     float jump_power, std::vector<std::vector<int>> animations, float animation_time, 
     int animation_frames, int animation_index, int animation_cols, int animation_rows, 
@@ -95,12 +116,12 @@ Entity::Entity(std::vector<GLuint> texture_ids, float speed, glm::vec3 accelerat
     set_player_state(player_state);
 }
 
-// Simpler constructor for partial initialization
-Entity::Entity(GLuint texture_id, float speed,  float width, float height, EntityType EntityType)
+// Simple constructor (Background)
+Entity::Entity(GLuint texture_id, EntityType EntityType)
     : m_position(0.0f), m_movement(0.0f), m_scale(glm::vec3(1.0f, 1.0f, 0.0f)), m_model_matrix(1.0f),
-    m_speed(speed), m_animation_cols(0), m_animation_frames(0), m_animation_index(0),
-    m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
-    m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), m_width(width), m_height(height), m_entity_type(EntityType)
+    m_speed(0.0f), m_animation_cols(0), m_animation_frames(0), m_animation_index(0),
+    m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f), m_texture_id(texture_id), 
+    m_velocity(0.0f), m_acceleration(0.0f), m_width(1.0f), m_height(1.0f), m_entity_type(EntityType)
 {
 }
 
@@ -112,6 +133,7 @@ Entity::Entity(GLuint texture_id, float speed, float width, float height, Entity
 {
 }
 
+// Enemy constructor
 Entity::Entity(std::vector<GLuint> texture_ids, float speed, glm::vec3 acceleration, std::vector<std::vector<int>> animations,
     float animation_time, int animation_frames, int animation_index, int animation_cols, int animation_rows, 
     float width, float height, EntityType EntityType, AIType AIType, AIState AIState)
@@ -297,20 +319,87 @@ void const Entity::check_collision_x(Map *map)
         m_collided_right = true;
     }
 }
+
+void const Entity::check_pit_detection(Map *map)
+{
+    if (m_entity_type != ENEMY || !m_is_active) return;
+
+    // Calculate sensor positions based on facing direction
+    float direction_multiplier = (m_direction == RIGHT) ? 1.0f : -1.0f;
+
+    // Main front sensor (aligned with movement direction)
+    glm::vec3 front_sensor = m_position;
+    front_sensor.x += m_pit_detection_forward * direction_multiplier;
+    front_sensor.y -= m_pit_detection_down;
+
+    // Secondary sensors (left/right of front sensor for edge cases)
+    glm::vec3 left_sensor = front_sensor;
+    left_sensor.x -= m_pit_sensor_side_offset;
+
+    glm::vec3 right_sensor = front_sensor;
+    right_sensor.x += m_pit_sensor_side_offset;
+
+    // Dummy variables for penetration (not used for pit detection)
+    float pen_x, pen_y;
+
+    // Check ground existence at sensor points
+    bool front_ground = map->is_solid(front_sensor, &pen_x, &pen_y);
+    bool left_ground = map->is_solid(left_sensor, &pen_x, &pen_y);
+    bool right_ground = map->is_solid(right_sensor, &pen_x, &pen_y);
+
+    // Update detection flags
+    m_pit_detected_left = !left_ground;
+    m_pit_detected_right = !right_ground;
+
+    // Determine if we should turn around
+    bool should_turn = false;
+
+    if (m_movement.x < 0) { // Moving left
+        should_turn = !front_ground || !left_ground;
+    }
+    else if (m_movement.x > 0) { // Moving right
+        should_turn = !front_ground || !right_ground;
+    }
+
+    // Execute turn if needed
+    if (should_turn) {
+        m_movement.x *= -1;
+        m_direction = (m_direction == RIGHT) ? LEFT : RIGHT;
+    }
+}
+
 void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map)
 {
     if (!m_is_active) return;
+
+    if (m_entity_type == BACKGROUND)
+    {
+        m_model_matrix = glm::mat4(1.0f);
+        m_model_matrix = glm::translate(m_model_matrix, m_position);
+        m_model_matrix = glm::scale(m_model_matrix, m_scale);
+        return;
+    }
+
+    if (m_entity_type == ENEMY)
+    {
+        if (m_ai_type == WALKER) {
+            if (m_collided_left) set_direction(RIGHT);
+            else if (m_collided_right) set_direction(LEFT);
+        }
+        else if (m_ai_type == FLYER) {
+            if (m_position.y >= m_flyer_upper_bound) set_direction(DOWN);
+            else if (m_position.y <= m_flyer_lower_bound) set_direction(UP);
+        }
+        ai_activate(player);
+    }
  
     m_collided_top    = false;
     m_collided_bottom = false;
     m_collided_left   = false;
     m_collided_right  = false;
-    
-    if (m_entity_type == ENEMY) ai_activate(player);
-    
+
     if (m_animation_indices != NULL)
     {
-        //if (glm::length(m_movement) > 0)
         if (m_animation_frames > 1)
         {
             m_animation_time += delta_time;
@@ -329,6 +418,8 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
         }
     }
     
+    if (m_ai_type == FLYER) { m_velocity.y = m_movement.y * m_speed; }
+    else { m_velocity.x = m_movement.x * m_speed; }
     m_velocity.x = m_movement.x * m_speed;
     m_velocity += m_acceleration * delta_time;
     
@@ -339,7 +430,6 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     }
     
     m_position.y += m_velocity.y * delta_time;
-    
     check_collision_y(collidable_entities, collidable_entity_count);
     check_collision_y(map);
     

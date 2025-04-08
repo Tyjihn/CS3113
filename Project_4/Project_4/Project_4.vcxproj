@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Effects.cpp" />
     <ClCompile Include="EndScene.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="LevelA.cpp" />
@@ -143,6 +144,7 @@
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Effects.h" />
     <ClInclude Include="EndScene.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="LevelB.h" />
@@ -156,8 +158,10 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\background.png" />
-    <Image Include="assets\font1.png" />
     <Image Include="assets\font2.png" />
+    <Image Include="assets\knight\attack.png" />
+    <Image Include="assets\knight\idle.png" />
+    <Image Include="assets\knight\run.png" />
     <Image Include="assets\player\fall.png" />
     <Image Include="assets\player\jump.png" />
     <Image Include="assets\player\rest.png" />
@@ -165,13 +169,12 @@
     <Image Include="assets\slime\attack.png" />
     <Image Include="assets\slime\hop.png" />
     <Image Include="assets\slime\idle.png" />
-    <Image Include="assets\soph.png" />
-    <Image Include="assets\tileset.png" />
     <Image Include="assets\tileset00.png" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="assets\Music\bgm.mp3" />
     <Media Include="assets\Music\game_over.wav" />
+    <Media Include="assets\music\game_win.wav" />
     <Media Include="assets\Music\jump.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

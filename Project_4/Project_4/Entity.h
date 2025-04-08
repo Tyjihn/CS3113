@@ -4,10 +4,12 @@
 #include "Map.h"
 #include "glm/glm.hpp"
 #include "ShaderProgram.h"
-enum EntityType  { PLAYER, ENEMY           };
-enum AIType      { WALKER, GUARD, FLYER    };
-enum AIState     { IDLE, MOVING, ATTACKING };
-enum PlayerState { REST, RUN, JUMP, FALL   };
+enum EntityType  { PLAYER, ENEMY, BACKGROUND };
+enum AIType      { WALKER, GUARD, FLYER      };
+enum AIState     { IDLE, MOVING, ATTACKING   };
+enum PlayerState { REST, RUN, JUMP, FALL     };
+
+enum Direction   { LEFT, RIGHT, UP, DOWN     };
 
 class Entity
 {
@@ -20,6 +22,8 @@ private:
     AIType     m_ai_type;
     AIState    m_ai_state;
     PlayerState m_player_state;
+    Direction m_direction;
+
     // ————— TRANSFORMATIONS ————— //
     glm::vec3 m_movement;
     glm::vec3 m_position;
@@ -32,10 +36,10 @@ private:
     float     m_speed,
               m_jumping_power;
     
-    bool m_is_jumping;
+    bool m_is_jumping = false;
 
     // ————— TEXTURES ————— //
-    GLuint    m_texture_id;
+    GLuint              m_texture_id;
     std::vector<GLuint> m_texture_ids;
 
     // ————— ANIMATION ————— //
@@ -50,11 +54,20 @@ private:
     float m_width = 1.0f,
           m_height = 1.0f;
 
+    float m_flyer_upper_bound = 0.0f,
+          m_flyer_lower_bound = 0.0f;
+
     // ————— COLLISIONS ————— //
     bool m_collided_top    = false;
     bool m_collided_bottom = false;
     bool m_collided_left   = false;
     bool m_collided_right  = false;
+    bool m_pit_detected_left  = false;
+    bool m_pit_detected_right = false;
+
+    float m_pit_detection_forward = 0.5f;
+    float m_pit_detection_down = 0.5f;
+    float m_pit_sensor_side_offset = 0.3f;
 
 public:
     // ————— STATIC VARIABLES ————— //
@@ -65,7 +78,7 @@ public:
     Entity(std::vector<GLuint> texture_ids, float speed, glm::vec3 acceleration, float jump_power, std::vector<std::vector<int>> animations,
             float animation_time, int animation_frames, int animation_index, int animation_cols, int animation_rows, 
             float width, float height, EntityType EntityType, PlayerState PlayerState); // Player constructor
-    Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType); // Simpler constructor
+    Entity(GLuint texture_id, EntityType EntityType); // Simple constructor
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState); // AI constructor
     Entity(std::vector<GLuint> texture_ids, float speed, glm::vec3 acceleration, std::vector<std::vector<int>> animations, float animation_time, 
             int animation_frames, int animation_index, int animation_cols, int animation_rows, float width, float height,
@@ -78,7 +91,6 @@ public:
     void const check_collision_y(Entity* collidable_entities, int collidable_entity_count);
     void const check_collision_x(Entity* collidable_entities, int collidable_entity_count);
     
-    // Overloading our methods to check for only the map
     void const check_collision_y(Map *map);
     void const check_collision_x(Map *map);
     
@@ -88,6 +100,15 @@ public:
     void ai_activate(Entity *player);
     void ai_walk();
     void ai_guard(Entity *player);
+    void ai_flyer();
+
+    void const check_pit_detection(Map *map);
+    void set_pit_detection(float forward, float down, float side_offset)
+    {
+        m_pit_detection_forward = forward;
+        m_pit_detection_down = down;
+        m_pit_sensor_side_offset = side_offset;
+    }
     
     void normalise_movement() { m_movement = glm::normalize(m_movement); }
 
@@ -97,14 +118,17 @@ public:
     void move_left() { 
         m_movement.x = -1.0f;
         face_left();
-        set_player_state(RUN);
+        if (m_entity_type == PLAYER) set_player_state(RUN);
     }
 
     void move_right() {
         m_movement.x = 1.0f; 
         face_right();
-        set_player_state(RUN);
+        if (m_entity_type == PLAYER) set_player_state(RUN);
     }
+
+    void move_up()   { m_movement.y = 1.0f;  }
+    void move_down() { m_movement.y = -1.0f; }
     
     void jumping() { set_player_state(JUMP); }
     void falling() { set_player_state(FALL); }
@@ -116,6 +140,7 @@ public:
     EntityType          const get_entity_type()      const { return m_entity_type;    };
     AIType              const get_ai_type()          const { return m_ai_type;        };
     AIState             const get_ai_state()         const { return m_ai_state;       };
+    Direction           const get_direction()        const { return m_direction;      };
     PlayerState         const get_player_state()     const { return m_player_state;   }
     float               const get_jumping_power()    const { return m_jumping_power;  }
     glm::vec3           const get_position()         const { return m_position;       }
@@ -132,13 +157,19 @@ public:
     bool                const get_collided_left()    const { return m_collided_left;  }
     float               const get_width()            const { return m_width;          }
     float               const get_height()           const { return m_height;         }
+    bool                const get_pit_detect_left()  const { return m_pit_detected_left; }
+    bool                const get_pit_detect_right() const { return m_pit_detected_right; }
     
     void activate()   { m_is_active = true;  };
     void deactivate() { m_is_active = false; };
 
     // ————— SETTERS ————— //
+    void const set_pit_detect_left(bool new_pit_detection) { m_pit_detected_left = new_pit_detection; }
+    void const set_pit_detect_right(bool new_pit_detection) { m_pit_detected_right = new_pit_detection; }
+    void const set_flyer_upper_bound(float new_upper_bound) { m_flyer_upper_bound = new_upper_bound; }
+    void const set_flyer_lower_bound(float new_lower_bound) { m_flyer_lower_bound = new_lower_bound; }
     void const set_entity_type(EntityType new_entity_type)  { m_entity_type = new_entity_type;};
-    void const set_ai_type(AIType new_ai_type){ m_ai_type = new_ai_type;};
+    void const set_ai_type(AIType new_ai_type) { m_ai_type = new_ai_type;};
     void const set_position(glm::vec3 new_position) { m_position = new_position; }
     void const set_velocity(glm::vec3 new_velocity) { m_velocity = new_velocity; }
     void const set_acceleration(glm::vec3 new_acceleration) { m_acceleration = new_acceleration; }
@@ -155,6 +186,14 @@ public:
     void const set_width(float new_width) {m_width = new_width; }
     void const set_height(float new_height) {m_height = new_height; }
     void const set_animations(std::vector<std::vector<int>> new_animations) { m_animations = new_animations; }
+    void const set_direction(Direction new_direction)
+    {
+        m_direction = new_direction;
+        if (new_direction == LEFT) face_left();
+        else if (new_direction == RIGHT) face_right();
+        else if (new_direction == UP) move_up();
+        else move_down();
+    };
     void const set_player_state(PlayerState new_player_state)
     {
         if (m_player_state == new_player_state) return;

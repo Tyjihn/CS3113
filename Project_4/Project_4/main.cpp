@@ -31,6 +31,7 @@
 #include "Map.h"
 #include "Utility.h"
 #include "Scene.h"
+#include "Effects.h"
 
 #include "StartScene.h"
 #include "LevelA.h"
@@ -43,10 +44,10 @@ constexpr float WINDOW_MULT = 1.5f;
 constexpr float WINDOW_WIDTH  = 640 * WINDOW_MULT,
                 WINDOW_HEIGHT = 480 * WINDOW_MULT;
 
-constexpr float BG_RED = 0.255f,
-                BG_BLUE    = 0.294f,
-                BG_GREEN   = 0.435f,
-                BG_OPACITY = 0.345f;
+constexpr float BG_RED = 0.0f,
+                BG_BLUE    = 0.0f,
+                BG_GREEN   = 0.0f,
+                BG_OPACITY = 1.0f;
 
 constexpr int VIEWPORT_X = 0,
               VIEWPORT_Y = 0,
@@ -83,6 +84,9 @@ float g_previous_ticks = 0.0f;
 float g_accumulator = 0.0f;
 float g_pause_ticks = 0.0f;
 
+// ----- EFFECTS ----- //
+Effects* g_effects;
+
 // ----- MUSIC ----- //
 constexpr int CD_QUAL_FREQ = 44100,
               AUDIO_CHAN_AMT = 2,
@@ -100,6 +104,9 @@ void switch_to_scene(Scene *scene)
     g_current_scene = scene;
     g_current_scene->initialise();
     g_current_scene->set_player_lives(g_player_lives);
+
+    if (g_current_scene != nullptr && g_current_scene->get_scene_type() == LEVEL)
+        g_effects->start(SHRINK, 4.0f);
 }
 
 void initialise();
@@ -176,20 +183,19 @@ void initialise()
 
     g_player_lives = 3;
 
+    // ----- EFFECTS ----- //
+    g_effects = new Effects(g_projection_matrix, g_view_matrix);
+
     // ————— BLENDING ————— //
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void process_input()
 {
     // Reset player movement
-    if (g_current_scene->get_scene_type() == LEVEL)
-    {
+    if (g_current_scene->get_scene_type() == LEVEL) {
         g_current_scene->get_state().player->set_movement(glm::vec3(0.0f));
-        for (int i = 0; i < g_current_scene->get_number_of_enemies(); ++i) {
-            g_current_scene->get_state().enemies->set_movement(glm::vec3(0.0f));
-        }
     }
 
     SDL_Event event;
@@ -297,9 +303,9 @@ void update()
     }
     
     while (delta_time >= FIXED_TIMESTEP) {
-        // ————— UPDATING THE SCENE (i.e. map, character, enemies...) ————— //
         g_current_scene->update(FIXED_TIMESTEP);
-        
+        g_effects->update(FIXED_TIMESTEP);
+
         delta_time -= FIXED_TIMESTEP;
     }
     
@@ -311,7 +317,8 @@ void update()
         g_view_matrix = glm::mat4(1.0f);
 
         if (g_current_scene->get_state().player->get_position().x > LEVEL1_LEFT_EDGE) {
-            g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_current_scene->get_state().player->get_position().x, 3.75, 0));
+            g_view_matrix = glm::translate(g_view_matrix, 
+                glm::vec3(-g_current_scene->get_state().player->get_position().x, 3.75, 0));
         }
         else {
             g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-5, 3.75, 0));
@@ -322,17 +329,6 @@ void update()
             switch_to_scene(g_scenes[g_current_scene->get_state().next_scene_id]);
         if (g_current_scene == g_end_scene) g_view_matrix = glm::mat4(1.0f);
 
-        //g_view_matrix = glm::translate(g_view_matrix, g_effects->get_view_offset());
-        //g_shader_program.set_light_position_matrix(g_current_scene->get_state().player->get_position());
-
-    }
-    else if (g_current_scene->get_scene_type() == END)
-    {
-        if (!is_game_over)
-        {
-            Mix_PlayChannel(-1, g_current_scene->get_state().jump_sfx, 0);
-            is_game_over = true;
-        }
     }
 }
 
@@ -346,6 +342,7 @@ void render()
     
     // ————— RENDERING THE SCENE (i.e. map, character, enemies...) ————— //
     g_current_scene->render(&g_shader_program);
+    g_effects->render();
     
     SDL_GL_SwapWindow(g_display_window);
 }
@@ -359,6 +356,8 @@ void shutdown()
     delete g_level_a;
     delete g_level_b;
     delete g_level_c;
+    
+    delete g_effects;
 }
 
 // ————— GAME LOOP ————— //

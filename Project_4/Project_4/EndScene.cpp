@@ -12,7 +12,7 @@
 
 EndScene::~EndScene()
 {
-    Mix_FreeChunk(m_game_state.jump_sfx);
+    Mix_FreeChunk(m_game_state.game_over_sfx);
     Mix_FreeMusic(m_game_state.bgm);
 }
 
@@ -26,15 +26,26 @@ void EndScene::initialise()
 
     // ----- BGM and SFX ----- //
     Mix_HaltMusic(); // Stop BGM
-
-    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
-    m_game_state.jump_sfx = Mix_LoadWAV("assets/music/game_over.wav");
 }
 
 void EndScene::update(float delta_time) {}
 
 void EndScene::render(ShaderProgram* g_shader_program)
 {
+    // ----- Sound Effect ----- //
+    if (!m_has_played_sound)
+    {
+        if (m_player_lives <= 0) {
+            m_game_state.game_over_sfx = Mix_LoadWAV("assets/music/game_over.wav");
+            Mix_PlayChannel(0, m_game_state.game_over_sfx, 0);
+        }
+        else {
+            m_game_state.game_over_sfx = Mix_LoadWAV("assets/music/game_win.wav");
+            Mix_PlayChannel(0, m_game_state.game_over_sfx, 0);
+        }
+        m_has_played_sound = true;
+    }
+
     // ----- Background ----- //
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);

@@ -4,7 +4,7 @@ class LevelC : public Scene {
 public:
     // ————— STATIC ATTRIBUTES ————— //
     GLuint m_font_texture_id;
-    int ENEMY_COUNT = 1;
+    static const int ENEMY_COUNT = 3;
 
     // ————— DESTRUCTOR ————— //
     ~LevelC();

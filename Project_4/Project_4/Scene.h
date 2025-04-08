@@ -15,6 +15,7 @@
 #include "Utility.h"
 #include "Entity.h"
 #include "Map.h"
+#include "Effects.h"
 
 
 enum SceneType { START, LEVEL, END };
@@ -28,8 +29,9 @@ struct GameState
     Entity *background = nullptr;
     
     // ————— AUDIO ————— //
-    Mix_Music *bgm;
-    Mix_Chunk *jump_sfx;
+    Mix_Music *bgm = nullptr;
+    Mix_Chunk *jump_sfx = nullptr;
+    Mix_Chunk* game_over_sfx = nullptr;
     
     // ————— POINTERS TO OTHER SCENES ————— //
     int next_scene_id;

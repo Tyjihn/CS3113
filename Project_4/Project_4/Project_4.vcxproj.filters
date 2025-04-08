@@ -48,6 +48,9 @@
     <ClCompile Include="EndScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Effects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h">
@@ -80,17 +83,11 @@
     <ClInclude Include="EndScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Effects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="assets\tileset.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\font1.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\soph.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="assets\background.png">
       <Filter>Resource Files</Filter>
     </Image>
@@ -121,6 +118,15 @@
     <Image Include="assets\slime\attack.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\knight\attack.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\knight\idle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\knight\run.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="assets\Music\bgm.mp3">
@@ -130,6 +136,9 @@
       <Filter>Resource Files</Filter>
     </Media>
     <Media Include="assets\Music\game_over.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\music\game_win.wav">
       <Filter>Resource Files</Filter>
     </Media>
   </ItemGroup>
