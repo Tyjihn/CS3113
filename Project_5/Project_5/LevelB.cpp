@@ -129,7 +129,7 @@ void LevelB::initialise()
         UP                         // direction
     );
 
-    m_game_state.player->set_position(glm::vec3(5.0f, -15.0f, 0.0f));
+    m_game_state.player->set_position(glm::vec3(5.0f, -15.1f, 0.0f));
 
     // ----- Clone Initialization ----- //
     m_game_state.clone = new Entity(
@@ -150,7 +150,7 @@ void LevelB::initialise()
         UP                         // direction
     );
 
-    m_game_state.clone->set_position(glm::vec3(13.0f, -15.0f, 0.0f));
+    m_game_state.clone->set_position(glm::vec3(13.0f, -15.1f, 0.0f));
 
     // ----- Enemies Initialization ----- //
     std::vector<std::vector<int>> spike_animations =

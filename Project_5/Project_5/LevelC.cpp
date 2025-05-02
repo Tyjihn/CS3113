@@ -356,24 +356,7 @@ void LevelC::initialise()
 }
 
 void LevelC::update(float delta_time)
-{
-    // ----- Enemy Activation ----- //
-    if (m_is_enemy_off) {
-        for (int i = 0; i < ENEMY_COUNT; i++) {
-            if (m_game_state.enemies[i].get_entity_type() == ENEMY) m_game_state.enemies[i].deactivate();
-        }
-    }
-    else {
-        if (!m_game_state.enemies[0].get_is_active()) {
-            for (int i = 0; i < ENEMY_COUNT; i++) {
-                if (m_game_state.enemies[i].get_trap_type() == SPIKE) {
-                    if (m_plate_pressed) m_game_state.enemies[i].activate();
-                }
-                else m_game_state.enemies[i].activate();
-            }
-        }
-    }
-    
+{   
     // Reset Block Movement + Play Sound Effect
     bool is_pushing = false;
     for (int i = 0; i < BLOCK_COUNT; i++) {
@@ -395,6 +378,21 @@ void LevelC::update(float delta_time)
     m_game_state.clone->update(delta_time, m_game_state.clone, m_game_state.enemies, ENEMY_COUNT, m_game_state.map);
     for (int i = 0; i < ENEMY_COUNT; i++) {
         m_game_state.enemies[i].update(delta_time, m_game_state.clone, *m_game_state.blocks, BLOCK_COUNT, m_game_state.map);
+    }
+
+    // ----- Enemy Activation ----- //
+    if (m_is_enemy_off) {
+        for (int i = 0; i < ENEMY_COUNT; i++) {
+            if (m_game_state.enemies[i].get_entity_type() == ENEMY ||
+                m_game_state.enemies[i].get_entity_type() == TRAP)
+                m_game_state.enemies[i].deactivate();
+        }
+    }
+    else {
+        for (int i = 0; i < ENEMY_COUNT; i++) {
+            if (i == 0 && m_game_state.pressure_plate->get_obstacle_state() != PRESSED) continue;
+            m_game_state.enemies[i].activate();
+        }
     }
 
     // ----- Player Camera ----- //
